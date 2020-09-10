@@ -49,15 +49,7 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        CalculateMovement();
-        /*
-        transform.Translate(Vector3.down * _enemySpeed * Time.deltaTime);
-
-        if (transform.position.y < _enemyReSpawnThreshold && !_isDestroyed)
-        {
-            Spawn();
-        }
-        */
+        //CalculateMovement();
 
         if (Time.time > _canFire && transform.position.y < 6.5f)
         {
@@ -65,9 +57,12 @@ public class Enemy : MonoBehaviour
             _canFire = Time.time + _fireRate;
             GameObject EnemyLaserShot = Instantiate(_enemyLaserPrefab, transform.position, Quaternion.identity);
             EnemyLaserShot.transform.parent = this.transform;
-            //EnemyLaserShot.transform.localScale = new Vector3(1, 1, 1);
-            //Debug.Break(); // Pause PLAY MODE
         }
+    }
+
+    private void FixedUpdate()
+    {
+        CalculateMovement();
     }
 
     private void CalculateMovement()
@@ -82,13 +77,6 @@ public class Enemy : MonoBehaviour
     Vector3 SpawnEnmeyAtRandomLocation()
     {
         return (_enemyPos = new Vector3(Random.Range(_respawnXmin, _respawnXmax), Random.Range(7.0f, 12.0f), 0));
-        /*
-        while () 
-        {
-        }
-
-        return pos;
-        */
     }
 
     bool CheckSpawnPosition(Vector3 pos)
@@ -100,7 +88,7 @@ public class Enemy : MonoBehaviour
     {
         float respawnX = Random.Range(_respawnXmin, _respawnXmax);
         _enemyPos.x = respawnX;
-        _enemyPos.y = Random.Range(7, 12);
+        _enemyPos.y = Random.Range(8, 12);
         transform.position = _enemyPos;
     }
 
@@ -114,6 +102,7 @@ public class Enemy : MonoBehaviour
                 // disable Enemy BoxCollider so explosion is not able to collide
                 _boxCollider2D.enabled = false;
                 _audioSource.Play();
+                CinemachineShake.Instance.ShakeCamera(5f, 1f);
                 // trigger explosion
                 _anim.SetTrigger("OnEnemyDeath");
                 // destory self (enemy)
@@ -128,6 +117,7 @@ public class Enemy : MonoBehaviour
                 // disable Enemy BoxCollider so explosion is not able to collide
                 _boxCollider2D.enabled = false;
                 _audioSource.Play();
+                CinemachineShake.Instance.ShakeCamera(5f, 1f);
                 // trigger explosion
                 _anim.SetTrigger("OnEnemyDeath");
                 // destory self (enemy)

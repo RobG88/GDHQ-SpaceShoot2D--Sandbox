@@ -159,18 +159,11 @@ public class Player : MonoBehaviour
     {
         if (!_gameOver)
         {
-            //CalculateMovement();
-
             if (RegenThrusters() && !_enableMainThrusters)
             {
                 StartCoroutine(RegeneratorThrusters());
             }
-            /*
-            else if (RegenThrusters() && _enableMainThrusters)
-            {
-                StopCoroutine(RegeneratorThrusters());
-            }
-            */
+
             if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && Ammo())
             {
                 FireLaser();
@@ -327,15 +320,24 @@ public class Player : MonoBehaviour
             if (_playerLives < 1)
             {
                 _gameOver = true;
+                CinemachineShake.Instance.ShakeCamera(16f, 4f);
                 PlayerDeathSequence();
+                return;
             }
 
+            CinemachineShake.Instance.ShakeCamera(5f, 1f);
             SpaceshipDamaged();
         }
     }
 
     public void PlayerDeathSequence() // player death final sequence
     {
+        if (_shieldActive) {
+            _shieldPower = 0;
+            _shieldActive = false;
+            _shield.transform.localScale = _shieldOriginalSize;
+            _shield.SetActive(false);
+        }
         gameObject.GetComponent<BoxCollider2D>().enabled = false;
         _audioSource.PlayOneShot(_explosion);
         _thruster_left.SetActive(false);
@@ -470,7 +472,7 @@ public class Player : MonoBehaviour
             _newSpeed = _spaceshipSpeed * 1.75f;
         }
 
-        if (_enableMainThrusters)
+        if (_enableMainThrusters) // Thrusters = speed * 250%
         {
             _newSpeed = _spaceshipSpeed * 2.50f;
         }
@@ -511,7 +513,6 @@ public class Player : MonoBehaviour
                 _enableMainThrusters = false;
 
                 _speed = CalculateShipSpeed();
-                //return;
             }
 
             UIManager.Instance.SetThrusters(_currentThrusters);
