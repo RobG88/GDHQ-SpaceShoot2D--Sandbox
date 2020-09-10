@@ -307,7 +307,7 @@ public class Player : MonoBehaviour
             if (_shieldPower == 0)
             {
                 _shieldActive = false;
-                _shieldPower = 2;
+                _shieldPower = 3; // reset Shield 'hits' remain value
                 _shield.transform.localScale = _shieldOriginalSize;
                 _shield.SetActive(false);
             }
@@ -430,7 +430,7 @@ public class Player : MonoBehaviour
                 StartCoroutine(PowerUpCoolDownRoutine(_speedCoolDown));
                 break;
             case "Shield":
-                _shieldPower = 2; // # of hits before shield is destroyed
+                _shieldPower = 3; // # of hits before shield is destroyed
                 _shield.transform.localScale = _shieldOriginalSize; // reset shield graphic to initial size
                 _shieldActive = true;
                 _shield.SetActive(true); // enable the Shield gameObject
