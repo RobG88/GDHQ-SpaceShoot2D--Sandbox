@@ -51,6 +51,7 @@ public class Player : MonoBehaviour
     float _yScreenClampUpper = 0;
     float _yScreenClampLower = -4.5f;
 
+    [SerializeField] GameObject _mainThrusters;
     [SerializeField] GameObject _thruster_left;
     [SerializeField] GameObject _thruster_right;
     Vector3 _originalThrustersLocalScale;
@@ -74,7 +75,9 @@ public class Player : MonoBehaviour
 
     [SerializeField] bool _shieldActive = false;
     [SerializeField] GameObject _shield;
-    [SerializeField] int _shieldPower = 2;
+    [SerializeField] int _shieldPower;
+    [SerializeField] int _shieldBonus;
+    [SerializeField] bool _bonusLife;
     Vector3 _shieldOriginalSize;
 
     [SerializeField] AudioClip _laserSFX;
@@ -296,6 +299,12 @@ public class Player : MonoBehaviour
 
     public void Damage() // ship & shield damage
     {
+        if (_shieldBonus == 3)
+        {
+            _bonusLife = true;
+            _shieldBonus = 0;
+        }
+
         if (_shieldActive)
         {
             _audioSource.PlayOneShot(_explosion);
@@ -314,25 +323,34 @@ public class Player : MonoBehaviour
         }
         else
         {
-            _playerLives--;
-            UIManager.Instance.UpdatePlayerLives(_playerLives);
-
-            if (_playerLives < 1)
+            if (_bonusLife)
             {
-                _gameOver = true;
-                CinemachineShake.Instance.ShakeCamera(16f, 4f);
-                PlayerDeathSequence();
-                return;
+                UIManager.Instance.UpdateShieldBonusUI(_shieldBonus);
+                _bonusLife = false;
             }
+            else
+            {
+                _playerLives--;
+                UIManager.Instance.UpdatePlayerLives(_playerLives);
 
-            CinemachineShake.Instance.ShakeCamera(5f, 1f);
-            SpaceshipDamaged();
+                if (_playerLives < 1)
+                {
+                    _gameOver = true;
+                    CinemachineShake.Instance.ShakeCamera(16f, 4f);
+                    PlayerDeathSequence();
+                    return;
+                }
+
+                CinemachineShake.Instance.ShakeCamera(5f, 1f);
+                SpaceshipDamaged();
+            }
         }
     }
 
     public void PlayerDeathSequence() // player death final sequence
     {
-        if (_shieldActive) {
+        if (_shieldActive)
+        {
             _shieldPower = 0;
             _shieldActive = false;
             _shield.transform.localScale = _shieldOriginalSize;
@@ -340,6 +358,7 @@ public class Player : MonoBehaviour
         }
         gameObject.GetComponent<BoxCollider2D>().enabled = false;
         _audioSource.PlayOneShot(_explosion);
+        _mainThrusters.SetActive(false);
         _thruster_left.SetActive(false);
         _thruster_right.SetActive(false);
         _shipDamageLeft.SetActive(false);
@@ -441,6 +460,9 @@ public class Player : MonoBehaviour
                     _currentAmmo = 15;
                 UIManager.Instance.SetAmmo(_currentAmmo);
                 break;
+            case "Repair":
+                RepairShip();
+                break;
         }
         _audioSource.pitch = 1.0f;
         _audioSource.PlayOneShot(_PowerUpSFX);
@@ -502,6 +524,7 @@ public class Player : MonoBehaviour
     {
         _regeneratingThrusters = false;
         _enableMainThrusters = true;
+        _mainThrusters.SetActive(_enableMainThrusters);
 
         if (_currentThrusters > 0)
         {
@@ -511,7 +534,7 @@ public class Player : MonoBehaviour
             {
                 _currentThrusters = 0;
                 _enableMainThrusters = false;
-
+                _mainThrusters.SetActive(_enableMainThrusters);
                 _speed = CalculateShipSpeed();
             }
 
@@ -522,6 +545,7 @@ public class Player : MonoBehaviour
     private void DisableMainThrusters()
     {
         _enableMainThrusters = false;
+        _mainThrusters.SetActive(_enableMainThrusters);
     }
     private IEnumerator RegeneratorThrusters()
     {
@@ -537,5 +561,56 @@ public class Player : MonoBehaviour
         }
 
         _regeneratingThrusters = false;
+    }
+
+    private void RepairShip()
+    {
+        if (_playerLives < 3)
+        {
+            _playerLives++;
+            UIManager.Instance.UpdatePlayerLives(_playerLives);
+
+            if (_damagedLeft && _damagedRight)
+            {
+                int RND_Damage = Random.Range(0, 2);
+                if (RND_Damage == 0)
+                {
+                    SpaceshipRepairLeft();
+                }
+                else if (RND_Damage == 1)
+                {
+                    SpaceshipRepairRight();
+                }
+            }
+            else if (_damagedLeft && !_damagedRight)
+            {
+                SpaceshipRepairLeft();
+            }
+            else if (!_damagedLeft && _damagedRight)
+            {
+                SpaceshipRepairRight();
+            }
+        }
+        else
+        {
+            _shieldBonus++;
+            UIManager.Instance.UpdateShieldBonusUI(_shieldBonus);
+        }
+    }
+
+    private void SpaceshipRepairLeft() // ship port side damage
+    {
+        _damagedLeft = false;
+        _shipDamageLeft.SetActive(false);
+        //_animShipDamageLeft.SetTrigger("PlayerDamageLeft");
+        //_audioSource.PlayOneShot(_explosion);
+    }
+
+    private void SpaceshipRepairRight() // ship starboard side damage
+    {
+        _damagedRight = false;
+        _shipDamageRight.SetActive(false);
+        //_animShipDamageRight.SetTrigger("PlayerDamageRight");
+        //_audioSource.PlayOneShot(_explosion);
     }
 }

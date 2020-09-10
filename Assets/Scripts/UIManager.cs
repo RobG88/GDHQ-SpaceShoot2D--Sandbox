@@ -9,6 +9,7 @@ public class UIManager : MonoSingleton<UIManager>
     [SerializeField] Image _livesRemainingImage;
     [SerializeField] Text _livesRemainingText;
     [SerializeField] Sprite[] _livesSprites;
+    [SerializeField] GameObject[] _shieldBonus;
     [SerializeField] Text _gameOverText;
     [SerializeField] Text _restartGameText;
     [SerializeField] Slider _ammoSlider;
@@ -45,6 +46,21 @@ public class UIManager : MonoSingleton<UIManager>
         if (livesRemaining == 0)
         {
             DisplayGameOver();
+        }
+    }
+
+    public void UpdateShieldBonusUI(int shieldBonus)
+    {
+        if (shieldBonus > 0)
+        {
+            _shieldBonus[shieldBonus-1].SetActive(true);
+        }
+        else if (shieldBonus == 0)
+        {
+            foreach (var shield in _shieldBonus)
+            {
+                shield.SetActive(false);
+            }
         }
     }
 
