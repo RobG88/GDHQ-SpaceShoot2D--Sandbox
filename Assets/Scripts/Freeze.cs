@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class Freeze : MonoBehaviour
 {
+    // Freeze 
+    //
+    // Freeze enemy with 'F'reeze
+    // Un-freeze enemy with 'R'estore
+    //
     [SerializeField] Material _originalMat;
     [SerializeField] Material _frozenMat;
     [SerializeField] Material _cloakingMat;
@@ -11,10 +16,6 @@ public class Freeze : MonoBehaviour
     {
         _originalMat = gameObject.GetComponent<SpriteRenderer>().material;
         _cloakingMat = _originalMat;
-    }
-    void Start()
-    {
-
     }
 
     void Update()

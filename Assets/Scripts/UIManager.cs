@@ -16,6 +16,9 @@ public class UIManager : MonoSingleton<UIManager>
     [SerializeField] Gradient _ammoBarGradient;
     [SerializeField] Image _ammoBarFill;
     [SerializeField] Slider _thrustersSlider;
+    [SerializeField] Text _bonusLife_text;
+    WaitForSeconds BonusLifePause = new WaitForSeconds(.25f);
+    bool ShieldBonusActivated;
 
     bool _isGameOver = false;
 
@@ -51,16 +54,30 @@ public class UIManager : MonoSingleton<UIManager>
 
     public void UpdateShieldBonusUI(int shieldBonus)
     {
-        if (shieldBonus > 0)
+       // Debug.Log("SHield Bonus = " + shieldBonus);
+        if (shieldBonus > 0 && shieldBonus < 4)
         {
-            _shieldBonus[shieldBonus-1].SetActive(true);
+            _shieldBonus[shieldBonus - 1].SetActive(true);
+            if (shieldBonus == 3) {
+                ShieldBonusActivated = true;
+                _bonusLife_text.gameObject.SetActive(true);
+                StartCoroutine(BonusLifeMessage());
+            }
         }
         else if (shieldBonus == 0)
         {
+            ShieldBonusActivated = false;
+            _bonusLife_text.gameObject.SetActive(false);
             foreach (var shield in _shieldBonus)
             {
                 shield.SetActive(false);
             }
+        }
+        else if (shieldBonus > 3)
+        {
+            // TODO:
+            // Display MAX SHIELD PROTECTION
+            // Blink
         }
     }
 
@@ -113,12 +130,27 @@ public class UIManager : MonoSingleton<UIManager>
     {
         _thrustersSlider.maxValue = thrusters;
         _thrustersSlider.value = thrusters;
-
-        //_ammoBarFill.color = _ammoBarGradient.Evaluate(1f);
     }
     public void SetThrusters(float thrusters)
     {
         _thrustersSlider.value = thrusters;
-        //_ammoBarFill.color = _ammoBarGradient.Evaluate(_ammoSlider.normalizedValue);
+    }
+
+    IEnumerator BonusLifeMessage()
+    {
+
+        Color colorBlue;
+        Color colorSilver;
+
+        ColorUtility.TryParseHtmlString("#0d00ff", out colorBlue);
+        ColorUtility.TryParseHtmlString("#a6a6a6", out colorSilver);
+
+        while (ShieldBonusActivated)
+        {
+            _bonusLife_text.color = colorBlue;
+            yield return BonusLifePause;
+            _bonusLife_text.color = colorSilver;
+            yield return BonusLifePause;
+        }
     }
 }

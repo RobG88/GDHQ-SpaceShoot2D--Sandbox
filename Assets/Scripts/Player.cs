@@ -78,6 +78,7 @@ public class Player : MonoBehaviour
     [SerializeField] int _shieldPower;
     [SerializeField] int _shieldBonus;
     [SerializeField] bool _bonusLife;
+    bool _bonusLifeOncePerLevel;
     Vector3 _shieldOriginalSize;
 
     [SerializeField] AudioClip _laserSFX;
@@ -102,6 +103,7 @@ public class Player : MonoBehaviour
     void Start()
     {
         _playerLives = 3;
+        _bonusLifeOncePerLevel = false;
         _gameOver = false;
         transform.position = new Vector3(0, -3.5f, 0);
 
@@ -299,10 +301,11 @@ public class Player : MonoBehaviour
 
     public void Damage() // ship & shield damage
     {
-        if (_shieldBonus == 3)
+        if (_shieldBonus == 3 && !_bonusLifeOncePerLevel) // Enable 3x Shield Bonus 'hit'
         {
             _bonusLife = true;
             _shieldBonus = 0;
+            _bonusLifeOncePerLevel = true;
         }
 
         if (_shieldActive)
@@ -332,6 +335,9 @@ public class Player : MonoBehaviour
             {
                 _playerLives--;
                 UIManager.Instance.UpdatePlayerLives(_playerLives);
+                _bonusLifeOncePerLevel = true;
+                _shieldBonus = 0;
+                UIManager.Instance.UpdateShieldBonusUI(_shieldBonus);
 
                 if (_playerLives < 1)
                 {
@@ -437,6 +443,7 @@ public class Player : MonoBehaviour
         {
             case "TripleShot":
                 _tripleShotActive = true;
+                LaserCannonsRefill(15);
                 //_timesUpText.text = _powerUpType;
                 // Enable PowerUpCountDownBar
                 _powerUpCountDownBar.SetActive(true);
@@ -455,10 +462,7 @@ public class Player : MonoBehaviour
                 _shield.SetActive(true); // enable the Shield gameObject
                 break;
             case "EnergyCell":
-                _currentAmmo = _currentAmmo + 25; // # of hits before shield is destroyed
-                if (_currentAmmo > 15)
-                    _currentAmmo = 15;
-                UIManager.Instance.SetAmmo(_currentAmmo);
+                LaserCannonsRefill(5);
                 break;
             case "Repair":
                 RepairShip();
@@ -466,6 +470,14 @@ public class Player : MonoBehaviour
         }
         _audioSource.pitch = 1.0f;
         _audioSource.PlayOneShot(_PowerUpSFX);
+    }
+
+    private void LaserCannonsRefill(int ammo)
+    {
+        _currentAmmo = _currentAmmo + ammo; // # of hits before shield is destroyed
+        if (_currentAmmo > 15)
+            _currentAmmo = 15;
+        UIManager.Instance.SetAmmo(_currentAmmo);
     }
 
     IEnumerator PowerUpCoolDownRoutine(float coolDown) // PowerUp Cooldown
@@ -593,8 +605,11 @@ public class Player : MonoBehaviour
         }
         else
         {
-            _shieldBonus++;
-            UIManager.Instance.UpdateShieldBonusUI(_shieldBonus);
+            if (!_bonusLifeOncePerLevel)
+            {
+                _shieldBonus++;
+                UIManager.Instance.UpdateShieldBonusUI(_shieldBonus);
+            }
         }
     }
 
@@ -602,15 +617,11 @@ public class Player : MonoBehaviour
     {
         _damagedLeft = false;
         _shipDamageLeft.SetActive(false);
-        //_animShipDamageLeft.SetTrigger("PlayerDamageLeft");
-        //_audioSource.PlayOneShot(_explosion);
     }
 
     private void SpaceshipRepairRight() // ship starboard side damage
     {
         _damagedRight = false;
         _shipDamageRight.SetActive(false);
-        //_animShipDamageRight.SetTrigger("PlayerDamageRight");
-        //_audioSource.PlayOneShot(_explosion);
     }
 }
