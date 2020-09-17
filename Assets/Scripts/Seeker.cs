@@ -3,20 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(AudioSource))]
 public class Seeker : MonoBehaviour
 {
-    [SerializeField] float _speed = 3.0f;
+    [SerializeField] float _speed = 2.0f;
     [SerializeField] float _rotateSpeed = 200.0f;
     [SerializeField] int invertMissle = 1;
     [SerializeField] Transform target;
     [SerializeField] List<GameObject> enemyList;
     [SerializeField] GameObject _freezeExplosion;
     private Rigidbody2D rb;
+    private AudioSource _sound;
+    private SpriteRenderer sr;
 
     void Start()
     {
         target = FindClosestEnemy();
         rb = GetComponent<Rigidbody2D>();
+        _sound = GetComponent<AudioSource>();
+        sr = gameObject.GetComponentInChildren<SpriteRenderer>();
     }
 
     void FixedUpdate()
@@ -52,8 +57,22 @@ public class Seeker : MonoBehaviour
     {
         if (other.tag == "Enemy")
         {
-            //Instantiate(_freezeExplosion, transform.position, transform.rotation);
-            Destroy(this.gameObject);
+            _sound.PlayOneShot(_sound.clip);
+            Instantiate(_freezeExplosion, transform.position, transform.rotation);
+            sr.enabled = false;
+            gameObject.GetComponent<Collider2D>().enabled = false;
+            FreezeFrame();
+            Destroy(this.gameObject, 2f);
+        }
+    }
+
+    private void FreezeFrame()
+    {
+        enemyList = new List<GameObject>(GameObject.FindGameObjectsWithTag("Enemy"));
+
+        foreach (GameObject enemy in enemyList)
+        {
+            enemy.GetComponent<Freeze>().Frozen();
         }
     }
 }

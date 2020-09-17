@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class PowerUp : MonoBehaviour
 {
     ////////////////////////////////
@@ -30,6 +31,12 @@ public class PowerUp : MonoBehaviour
     [SerializeField] float _speed = 3.0f;
     [SerializeField] float _destoryYAxisThreshold = -4.50f;
     [SerializeField] Color _powerUpCountDownBarColor;
+    private AudioSource _sound;
+
+    private void Start()
+    {
+        _sound = GetComponent<AudioSource>();
+    }
 
     void Update()
     {
@@ -53,9 +60,12 @@ public class PowerUp : MonoBehaviour
     {
         if (other.tag == "Player")
         {
+            _sound.PlayOneShot(_sound.clip);
+            gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            gameObject.GetComponent<Collider2D>().enabled = false;
             // Enable player power up
             // Power Up enabled on Player script
-            Destroy(this.gameObject);
+            Destroy(this.gameObject, .5f); // wait for PowerUp sound to finish
 
             // PLAYER handles Triggers/Collisions
             // OnTriggerEnter2D and PowerUps

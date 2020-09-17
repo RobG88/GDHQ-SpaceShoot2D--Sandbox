@@ -81,9 +81,11 @@ public class Player : MonoBehaviour
     bool _bonusLifeOncePerLevel;
     Vector3 _shieldOriginalSize;
 
-    [SerializeField] AudioClip _laserSFX;
-    [SerializeField] AudioClip _PowerUpSFX;
-    [SerializeField] AudioClip _explosion;
+    //[SerializeField] AudioClip _laserSFX;
+    ///[SerializeField] AudioClip _PowerUpSFX;
+    //[SerializeField] AudioClip _explosion;
+    private AudioSource _sound;
+    [SerializeField] AudioClip _explosionFinale;
     [SerializeField] GameObject PlayerFinalExplosionPE;
 
     [SerializeField] private int _maxAmmo, _currentAmmo;
@@ -98,7 +100,7 @@ public class Player : MonoBehaviour
     //private Coroutine _regenThrusters;
 
     Animator _anim; // Player Death Explosion with Event to clean-up
-    AudioSource _audioSource; // Audio source for laser, player damage & powerups
+    //AudioSource _audioSource; // Audio source for laser, player damage & powerups
 
     void Start()
     {
@@ -110,7 +112,8 @@ public class Player : MonoBehaviour
         _anim = GetComponent<Animator>();
         _animShipDamageLeft = _shipDamageLeft.GetComponent<Animator>();
         _animShipDamageRight = _shipDamageRight.GetComponent<Animator>();
-        _audioSource = GetComponent<AudioSource>();
+        //_audioSource = GetComponent<AudioSource>();
+        _sound = GetComponent<AudioSource>();
 
         // Initialize Player/Ship variables & set GUI
         // Ship speed
@@ -147,11 +150,6 @@ public class Player : MonoBehaviour
         if (_animShipDamageRight == null)
         {
             Debug.LogError("PLAYER::Start *** ERROR: Animator ShipDamageRight is Null!");
-        }
-
-        if (_audioSource == null)
-        {
-            Debug.LogError("PLAYER::Start *** ERROR: AudioSource is Null!");
         }
 
         if (_anim == null)
@@ -205,7 +203,7 @@ public class Player : MonoBehaviour
         {
             Vector3 _laserOrigin = transform.position + _laserOffset;
             Instantiate(_laserPrefab, _laserOrigin, Quaternion.identity);
-            _audioSource.pitch = Random.Range(2.5f, 3.0f);
+            ////_audioSource.pitch = Random.Range(2.5f, 3.0f);
         }
 
         if (_tripleShotActive)
@@ -213,10 +211,10 @@ public class Player : MonoBehaviour
             Vector3 _tripleOrigin = transform.position;
             GameObject TripleShot = Instantiate(_tripleShotPrefab, _tripleOrigin, Quaternion.identity);
             Destroy(TripleShot, 1.5f);
-            _audioSource.pitch = 1.0f;
+            ////_audioSource.pitch = 1.0f;
         }
 
-        _audioSource.PlayOneShot(_laserSFX, 0.50f);
+        ////_audioSource.PlayOneShot(_laserSFX, 0.50f);
     }
 
     private void CalculateMovement() // Ship movement, animate thrusters & screen clamps
@@ -310,7 +308,7 @@ public class Player : MonoBehaviour
 
         if (_shieldActive)
         {
-            _audioSource.PlayOneShot(_explosion);
+            _sound.PlayOneShot(_sound.clip);
             if (_shieldPower > 0)
             {
                 _shieldPower--;
@@ -363,7 +361,7 @@ public class Player : MonoBehaviour
             _shield.SetActive(false);
         }
         gameObject.GetComponent<BoxCollider2D>().enabled = false;
-        _audioSource.PlayOneShot(_explosion);
+        _sound.PlayOneShot(_sound.clip);
         _mainThrusters.SetActive(false);
         _thruster_left.SetActive(false);
         _thruster_right.SetActive(false);
@@ -372,6 +370,8 @@ public class Player : MonoBehaviour
         // Play Explosion animation, final Player Death sequence via animation event
         _anim.SetTrigger("GameOver");
         PlayerFinalExplosionPE.SetActive(true);
+        _sound.clip = _explosionFinale;
+        _sound.PlayOneShot(_sound.clip);
     }
 
     void SpaceshipDamaged() // if player ship is hit, damage port or starboard
@@ -396,6 +396,7 @@ public class Player : MonoBehaviour
         {
             SpaceshipDamagedLeft();
         }
+        _sound.PlayOneShot(_sound.clip);
     }
 
     private void SpaceshipDamagedLeft() // ship port side damage
@@ -403,7 +404,7 @@ public class Player : MonoBehaviour
         _damagedLeft = true;
         _shipDamageLeft.SetActive(true);
         _animShipDamageLeft.SetTrigger("PlayerDamageLeft");
-        _audioSource.PlayOneShot(_explosion);
+        //_sound.PlayOneShot(_sound.clip);
     }
 
     private void SpaceshipDamagedRight() // ship starboard side damage
@@ -411,7 +412,7 @@ public class Player : MonoBehaviour
         _damagedRight = true;
         _shipDamageRight.SetActive(true);
         _animShipDamageRight.SetTrigger("PlayerDamageRight");
-        _audioSource.PlayOneShot(_explosion);
+        //_sound.PlayOneShot(_sound.clip);
     }
 
     private void OnTriggerEnter2D(Collider2D other) // collisions
@@ -468,8 +469,8 @@ public class Player : MonoBehaviour
                 RepairShip();
                 break;
         }
-        _audioSource.pitch = 1.0f;
-        _audioSource.PlayOneShot(_PowerUpSFX);
+        //_audioSource.pitch = 1.0f;
+        //_audioSource.PlayOneShot(_PowerUpSFX);
     }
 
     private void LaserCannonsRefill(int ammo)

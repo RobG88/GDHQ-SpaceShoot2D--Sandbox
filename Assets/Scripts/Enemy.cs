@@ -4,6 +4,7 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField] int _scoreValue = 0;
     [SerializeField] float _enemySpeed = 4.0f;
+    float _tempSpeed;
     [SerializeField] float _enemyLaser = 6.0f;  // speed of enemy's laser
     [SerializeField] GameObject _enemyLaserPrefab;
     float _fireRate = 3.0f;
@@ -18,13 +19,16 @@ public class Enemy : MonoBehaviour
 
     Player _player;
     Animator _anim;
-    AudioSource _audioSource;
+    //AudioSource _audioSource;
     BoxCollider2D _boxCollider2D;
+    private AudioSource _sound;
+    bool isFrozen = false;
 
     void Start()
     {
         _anim = GetComponent<Animator>();
-        _audioSource = GetComponent<AudioSource>();
+        //_audioSource = GetComponent<AudioSource>();
+        _sound = GetComponent<AudioSource>();
         _boxCollider2D = gameObject.GetComponent<BoxCollider2D>();
 
         _player = Player.Instance;
@@ -51,7 +55,7 @@ public class Enemy : MonoBehaviour
     {
         //CalculateMovement();
 
-        if (Time.time > _canFire && transform.position.y < 6.5f)
+        if (Time.time > _canFire && transform.position.y < 6.5f && !isFrozen)
         {
             _fireRate = Random.Range(3f, 7f);
             _canFire = Time.time + _fireRate;
@@ -101,7 +105,8 @@ public class Enemy : MonoBehaviour
                 _player.AddScore(_scoreValue);
                 // disable Enemy BoxCollider so explosion is not able to collide
                 _boxCollider2D.enabled = false;
-                _audioSource.Play();
+                //_audioSource.Play();
+                _sound.PlayOneShot(_sound.clip);
                 CinemachineShake.Instance.ShakeCamera(5f, 1f);
                 // trigger explosion
                 _anim.SetTrigger("OnEnemyDeath");
@@ -116,7 +121,8 @@ public class Enemy : MonoBehaviour
                 _player.AddScore(_scoreValue);
                 // disable Enemy BoxCollider so explosion is not able to collide
                 _boxCollider2D.enabled = false;
-                _audioSource.Play();
+                //_audioSource.Play();
+                _sound.PlayOneShot(_sound.clip);
                 CinemachineShake.Instance.ShakeCamera(5f, 1f);
                 // trigger explosion
                 _anim.SetTrigger("OnEnemyDeath");
@@ -132,5 +138,18 @@ public class Enemy : MonoBehaviour
     void DestroyEnemyShip() // Called by Animation Event
     {
         Destroy(gameObject);
+    }
+
+    public void FreezeEnemyShip(float speed)
+    {
+        _tempSpeed = _enemySpeed;
+        _enemySpeed = speed;
+        isFrozen = true;
+    }
+
+    public void ThawedEnemyShip()
+    {
+        _enemySpeed = _tempSpeed;
+        isFrozen = false;
     }
 }

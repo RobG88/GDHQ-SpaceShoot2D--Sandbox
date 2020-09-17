@@ -17,6 +17,8 @@ public class UIManager : MonoSingleton<UIManager>
     [SerializeField] Image _ammoBarFill;
     [SerializeField] Slider _thrustersSlider;
     [SerializeField] Text _bonusLife_text;
+    [SerializeField] GameObject _optionsMenu;
+    [SerializeField] GameObject _pausePanel;
     WaitForSeconds BonusLifePause = new WaitForSeconds(.25f);
     bool ShieldBonusActivated;
 
@@ -54,11 +56,12 @@ public class UIManager : MonoSingleton<UIManager>
 
     public void UpdateShieldBonusUI(int shieldBonus)
     {
-       // Debug.Log("SHield Bonus = " + shieldBonus);
+        // Debug.Log("SHield Bonus = " + shieldBonus);
         if (shieldBonus > 0 && shieldBonus < 4)
         {
             _shieldBonus[shieldBonus - 1].SetActive(true);
-            if (shieldBonus == 3) {
+            if (shieldBonus == 3)
+            {
                 ShieldBonusActivated = true;
                 _bonusLife_text.gameObject.SetActive(true);
                 StartCoroutine(BonusLifeMessage());
@@ -110,7 +113,7 @@ public class UIManager : MonoSingleton<UIManager>
 
     public void ReturnToMainMenu()
     {
-        SceneManager.LoadScene("MainMenu"); // Scene 0 = 'MainMen'
+        SceneManager.LoadScene("MainMenu"); // Scene 0 = 'MainMenu'
     }
 
     public void SetMaxAmmo(int ammo)
@@ -134,6 +137,18 @@ public class UIManager : MonoSingleton<UIManager>
     public void SetThrusters(float thrusters)
     {
         _thrustersSlider.value = thrusters;
+    }
+
+    public void OptionsMenu()
+    {
+        _pausePanel.SetActive(false);
+        _optionsMenu.SetActive(true);
+    }
+
+    public void OptionsBackButton()
+    {
+        _optionsMenu.SetActive(false);
+        _pausePanel.SetActive(true);
     }
 
     IEnumerator BonusLifeMessage()

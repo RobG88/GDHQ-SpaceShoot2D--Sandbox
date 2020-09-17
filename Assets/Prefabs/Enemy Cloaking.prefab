@@ -98,6 +98,7 @@ GameObject:
   - component: {fileID: 8269435251633500022}
   - component: {fileID: 4393006191596707747}
   - component: {fileID: 626182049149187604}
+  - component: {fileID: 1643441865}
   m_Layer: 0
   m_Name: Enemy Cloaking
   m_TagString: Enemy
@@ -114,7 +115,7 @@ Transform:
   m_GameObject: {fileID: 5075808162685208605}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 4, y: 4, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.45454547, y: 0.45454547, z: 0.5}
   m_Children:
   - {fileID: 626182050701407942}
   m_Father: {fileID: 0}
@@ -366,3 +367,18 @@ MonoBehaviour:
   deCloaking: 0
   cloaked: 0
   fade: 1
+--- !u!114 &1643441865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5075808162685208605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a878febac468d5d489710cd9ee0b3337, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _originalMat: {fileID: 2100000, guid: 3fce3a59bdccf424c8bc239297e31623, type: 2}
+  _frozenMat: {fileID: 2100000, guid: 1f1b922898820b043bdde591d3037071, type: 2}
+  _cloakingMat: {fileID: 0}

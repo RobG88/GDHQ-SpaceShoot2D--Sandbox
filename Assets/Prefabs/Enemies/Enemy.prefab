@@ -98,6 +98,8 @@ GameObject:
   - component: {fileID: 8823196867265293349}
   - component: {fileID: 3767175991305985264}
   - component: {fileID: 72186096}
+  - component: {fileID: 1473855880}
+  - component: {fileID: 1473855881}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -114,7 +116,7 @@ Transform:
   m_GameObject: {fileID: 5674607962677283662}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -5, y: 6, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.45454547, y: 0.45454547, z: 0.5}
   m_Children:
   - {fileID: 315798933}
   m_Father: {fileID: 0}
@@ -263,7 +265,8 @@ AudioSource:
   m_GameObject: {fileID: 5674607962677283662}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -707283007538530910, guid: 3cf01c78fc8735e42a111a0c7b6df03a,
+    type: 2}
   m_audioClip: {fileID: 8300000, guid: a885c043fab7e46438bba03ba9dab6bc, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -360,6 +363,37 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f6df72941da07f4459ff8f4f797b3ef4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isCloaking: 0
+  deCloaking: 0
+  cloaked: 0
+  fade: 1
+--- !u!114 &1473855880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5674607962677283662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a878febac468d5d489710cd9ee0b3337, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _originalMat: {fileID: 2100000, guid: 3fce3a59bdccf424c8bc239297e31623, type: 2}
+  _frozenMat: {fileID: 2100000, guid: 1f1b922898820b043bdde591d3037071, type: 2}
+  _cloakingMat: {fileID: 0}
+--- !u!114 &1473855881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5674607962677283662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb7b0f22baa3f824aa4f12b816315953, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   isCloaking: 0

@@ -3,8 +3,15 @@
 public class EnemyLaser : MonoBehaviour
 {
     [SerializeField] float _speed = 8;
-    float _yThreshold = -6.0f;
+    float _yThreshold = -7.0f;
+    private AudioSource _sound;
 
+    private void Start()
+    {
+        _sound = GetComponent<AudioSource>();
+        //_sound.pitch = Random.Range(2.5f, 5.0f);
+        _sound.PlayOneShot(_sound.clip);
+    }
     void Update()
     {
         MoveDown();
@@ -24,17 +31,4 @@ public class EnemyLaser : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    /*
-    void OnBecameInvisible()
-    {
-        if (transform.parent != null) // if object has a parent
-        {
-            Destroy(transform.parent.gameObject, 0.1f);
-        }
-        else
-        {
-            Destroy(transform.gameObject, 0.1f);
-        }
-    }
-    */
 }

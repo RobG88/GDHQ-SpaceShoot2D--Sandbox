@@ -12,8 +12,10 @@ public class Freeze : MonoBehaviour
     [SerializeField] Material _originalMat;
     [SerializeField] Material _frozenMat;
     [SerializeField] Material _cloakingMat;
+    Enemy enemy;
     private void Awake()
     {
+        enemy = GetComponent<Enemy>();
         _originalMat = gameObject.GetComponent<SpriteRenderer>().material;
         _cloakingMat = _originalMat;
     }
@@ -22,11 +24,37 @@ public class Freeze : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.F))
         {
-            gameObject.GetComponent<SpriteRenderer>().material = _frozenMat;
+            EncasedInIce();
         }
         if (Input.GetKeyDown(KeyCode.R))
         {
-            gameObject.GetComponent<SpriteRenderer>().material = _originalMat;
+            Thawed();
         }
+    }
+
+    private void Thawed()
+    {
+        gameObject.GetComponent<SpriteRenderer>().material = _originalMat;
+    }
+
+    private void EncasedInIce()
+    {
+        gameObject.GetComponent<SpriteRenderer>().material = _frozenMat;
+    }
+
+    public void Frozen()
+    {
+        StartCoroutine(IceIce());
+    }
+
+    IEnumerator IceIce()
+    {
+        EncasedInIce();
+        enemy.FreezeEnemyShip(.25f);
+
+        yield return new WaitForSeconds(6f);
+
+        Thawed();
+        enemy.ThawedEnemyShip();
     }
 }
