@@ -12,6 +12,7 @@ public class Seeker : MonoBehaviour
     [SerializeField] Transform target;
     [SerializeField] List<GameObject> enemyList;
     [SerializeField] GameObject _freezeExplosion;
+    [SerializeField] AudioClip _torpedoExplosionSFX;
     private Rigidbody2D rb;
     private AudioSource _sound;
     private SpriteRenderer sr;
@@ -22,15 +23,23 @@ public class Seeker : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         _sound = GetComponent<AudioSource>();
         sr = gameObject.GetComponentInChildren<SpriteRenderer>();
+        _sound.PlayOneShot(_sound.clip);
     }
 
     void FixedUpdate()
     {
-        Vector2 direction = (Vector2)target.position - rb.position;
-        direction.Normalize();
-        float rotateAmount = Vector3.Cross(direction, transform.up).z;
-        rb.angularVelocity = -rotateAmount * _rotateSpeed;
-        rb.velocity = transform.up * _speed;
+        if (target != null)
+        {
+            Vector2 direction = (Vector2)target.position - rb.position;
+            direction.Normalize();
+            float rotateAmount = Vector3.Cross(direction, transform.up).z;
+            rb.angularVelocity = -rotateAmount * _rotateSpeed;
+            rb.velocity = transform.up * _speed;
+        }
+        else
+        {
+            target = FindClosestEnemy();
+        }
     }
 
     private Transform FindClosestEnemy()
@@ -57,6 +66,7 @@ public class Seeker : MonoBehaviour
     {
         if (other.tag == "Enemy")
         {
+            _sound.clip = _torpedoExplosionSFX;
             _sound.PlayOneShot(_sound.clip);
             Instantiate(_freezeExplosion, transform.position, transform.rotation);
             sr.enabled = false;

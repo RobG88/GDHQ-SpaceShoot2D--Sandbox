@@ -9,7 +9,6 @@ public class EnemyLaser : MonoBehaviour
     private void Start()
     {
         _sound = GetComponent<AudioSource>();
-        //_sound.pitch = Random.Range(2.5f, 5.0f);
         _sound.PlayOneShot(_sound.clip);
     }
     void Update()

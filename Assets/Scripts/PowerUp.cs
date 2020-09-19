@@ -23,6 +23,7 @@ public class PowerUp : MonoBehaviour
         Speed,
         EnergyCell,
         Repair,
+        FreezeTorpedo,
         Ultimate
     }
 
@@ -31,6 +32,9 @@ public class PowerUp : MonoBehaviour
     [SerializeField] float _speed = 3.0f;
     [SerializeField] float _destoryYAxisThreshold = -4.50f;
     [SerializeField] Color _powerUpCountDownBarColor;
+    [SerializeField] bool _rotatePowerUpSprite = false;
+    [SerializeField] private float _rotationSpriteSpeed = 5f;
+
     private AudioSource _sound;
 
     private void Start()
@@ -49,6 +53,11 @@ public class PowerUp : MonoBehaviour
 
         if (transform.position.y < _destoryYAxisThreshold)
             Destroy(this.gameObject);
+
+        if(_rotatePowerUpSprite)
+        {
+            transform.Rotate(0f, _rotationSpriteSpeed * Time.deltaTime, 0f);
+        }
     }
 
     public PowerUpType PowerType()

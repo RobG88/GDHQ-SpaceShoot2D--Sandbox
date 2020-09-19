@@ -80,10 +80,8 @@ public class Player : MonoBehaviour
     [SerializeField] bool _bonusLife;
     bool _bonusLifeOncePerLevel;
     Vector3 _shieldOriginalSize;
+    [SerializeField] GameObject _repairBotsPE;
 
-    //[SerializeField] AudioClip _laserSFX;
-    ///[SerializeField] AudioClip _PowerUpSFX;
-    //[SerializeField] AudioClip _explosion;
     private AudioSource _sound;
     [SerializeField] AudioClip _explosionFinale;
     [SerializeField] GameObject PlayerFinalExplosionPE;
@@ -97,10 +95,12 @@ public class Player : MonoBehaviour
     private float _thrustersRegenTick = 0.1f;
     private WaitForSeconds _thrustersRegenDelay;
     private WaitForSeconds _thrustersRegenTickDelay;
-    //private Coroutine _regenThrusters;
+    [SerializeField] GameObject _freezeTorpedo;
+    private bool _freezeTorpedoLoaded;
+    [SerializeField] GameObject _freezeTorpedoSprite;
 
     Animator _anim; // Player Death Explosion with Event to clean-up
-    //AudioSource _audioSource; // Audio source for laser, player damage & powerups
+
 
     void Start()
     {
@@ -112,7 +112,7 @@ public class Player : MonoBehaviour
         _anim = GetComponent<Animator>();
         _animShipDamageLeft = _shipDamageLeft.GetComponent<Animator>();
         _animShipDamageRight = _shipDamageRight.GetComponent<Animator>();
-        //_audioSource = GetComponent<AudioSource>();
+
         _sound = GetComponent<AudioSource>();
 
         // Initialize Player/Ship variables & set GUI
@@ -167,9 +167,13 @@ public class Player : MonoBehaviour
                 StartCoroutine(RegeneratorThrusters());
             }
 
-            if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && Ammo())
+            if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && Ammo() && !_freezeTorpedoLoaded)
             {
                 FireLaser();
+            }
+            else if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && Ammo() && _freezeTorpedoLoaded)
+            {
+                FireFreezeTorpedo();
             }
 
             if (Input.GetKey(KeyCode.LeftShift) && Thrusters())
@@ -203,7 +207,6 @@ public class Player : MonoBehaviour
         {
             Vector3 _laserOrigin = transform.position + _laserOffset;
             Instantiate(_laserPrefab, _laserOrigin, Quaternion.identity);
-            ////_audioSource.pitch = Random.Range(2.5f, 3.0f);
         }
 
         if (_tripleShotActive)
@@ -211,10 +214,15 @@ public class Player : MonoBehaviour
             Vector3 _tripleOrigin = transform.position;
             GameObject TripleShot = Instantiate(_tripleShotPrefab, _tripleOrigin, Quaternion.identity);
             Destroy(TripleShot, 1.5f);
-            ////_audioSource.pitch = 1.0f;
         }
+    }
 
-        ////_audioSource.PlayOneShot(_laserSFX, 0.50f);
+    private void FireFreezeTorpedo()
+    {
+        _freezeTorpedoLoaded = false;
+        _freezeTorpedoSprite.SetActive(false);
+        var _torpedoLaunch = new Vector3(0, 1.85f, 0);
+        Instantiate(_freezeTorpedo, _freezeTorpedoSprite.transform.position, Quaternion.identity);
     }
 
     private void CalculateMovement() // Ship movement, animate thrusters & screen clamps
@@ -360,6 +368,8 @@ public class Player : MonoBehaviour
             _shield.transform.localScale = _shieldOriginalSize;
             _shield.SetActive(false);
         }
+        _freezeTorpedoLoaded = false;
+        _freezeTorpedoSprite.SetActive(false);
         gameObject.GetComponent<BoxCollider2D>().enabled = false;
         _sound.PlayOneShot(_sound.clip);
         _mainThrusters.SetActive(false);
@@ -467,6 +477,10 @@ public class Player : MonoBehaviour
                 break;
             case "Repair":
                 RepairShip();
+                break;
+            case "FreezeTorpedo":
+                _freezeTorpedoLoaded = true;
+                _freezeTorpedoSprite.SetActive(true);
                 break;
         }
         //_audioSource.pitch = 1.0f;
@@ -612,6 +626,11 @@ public class Player : MonoBehaviour
                 UIManager.Instance.UpdateShieldBonusUI(_shieldBonus);
             }
         }
+    }
+
+    private void RepairBotsDeployed()
+    {
+
     }
 
     private void SpaceshipRepairLeft() // ship port side damage

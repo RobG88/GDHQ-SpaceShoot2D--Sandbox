@@ -23,10 +23,6 @@ public class SpawnManager : MonoSingleton<SpawnManager>
         //Debug.Log("SpawnManager has been initialized");
     }
 
-    private void Start()
-    {
-        //Spawn();
-    }
     public void Spawn()
     {
         StartCoroutine(SpawnEnemyRoutine());
