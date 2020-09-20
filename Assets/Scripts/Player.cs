@@ -51,7 +51,6 @@ public class Player : MonoBehaviour
     float _yScreenClampUpper = 0;
     float _yScreenClampLower = -4.5f;
 
-    [SerializeField] GameObject _mainThrusters;
     [SerializeField] GameObject _thruster_left;
     [SerializeField] GameObject _thruster_right;
     Vector3 _originalThrustersLocalScale;
@@ -73,21 +72,47 @@ public class Player : MonoBehaviour
     [SerializeField] float _speedCoolDown = 5.0f;
     [SerializeField] bool _speedActive = false;
 
+    /// 
+    /// SHIELD VARIABLES
+    /// 
     [SerializeField] bool _shieldActive = false;
     [SerializeField] GameObject _shield;
     [SerializeField] int _shieldPower;
     [SerializeField] int _shieldBonus;
+    Vector3 _shieldOriginalSize;
+    /// 
+    /// SHIELD VARIABLES - END
+    /// 
+
     [SerializeField] bool _bonusLife;
     bool _bonusLifeOncePerLevel;
-    Vector3 _shieldOriginalSize;
+    ///
+    /// REPAIR 'Health' VARIABLES
+    ///
     private bool _repairBotsActive;
     [SerializeField] GameObject _repairBotsPE;
+    ///
+    /// REPAIR 'Health' VARIABLES - END
+    ///
 
     private AudioSource _sound;
-    [SerializeField] AudioClip _explosionFinale;
+    [SerializeField] AudioClip _explosionFinaleSFX;
+    [SerializeField] AudioClip _explosionSFX;
     [SerializeField] GameObject PlayerFinalExplosionPE;
 
-    [SerializeField] private int _maxAmmo, _currentAmmo;
+    ///
+    /// AMMO VARIABLES
+    ///
+    private int _maxAmmo, _currentAmmo;
+    [SerializeField] AudioClip _out_of_ammo_sfx;
+    ///
+    /// AMMO VARIABLES - END
+    ///
+
+    ///
+    /// THRUSTER VARIABLES
+    ///
+    [SerializeField] GameObject _mainThrusters;
     [SerializeField] private float _maxThrusters, _currentThrusters;
     private float _thrusterBurnRate = 2.5f;
     [SerializeField] private bool _enableMainThrusters;
@@ -96,9 +121,19 @@ public class Player : MonoBehaviour
     private float _thrustersRegenTick = 0.1f;
     private WaitForSeconds _thrustersRegenDelay;
     private WaitForSeconds _thrustersRegenTickDelay;
+    ///
+    /// THRUSTER VARIABLES - END
+    ///
+
+    ///
+    /// FREEZE/EMP TORPEDO second fire VARIABLES
+    ///
     [SerializeField] GameObject _freezeTorpedo;
     private bool _freezeTorpedoLoaded;
     [SerializeField] GameObject _freezeTorpedoSprite;
+    ///
+    /// FREEZE/EMP TORPEDO second fire VARIABLES - END
+    ///
 
     Animator _anim; // Player Death Explosion with Event to clean-up
 
@@ -115,30 +150,57 @@ public class Player : MonoBehaviour
         _animShipDamageRight = _shipDamageRight.GetComponent<Animator>();
 
         _sound = GetComponent<AudioSource>();
-
+        //
         // Initialize Player/Ship variables & set GUI
         // Ship speed
         // At the start of the game the ship has taken damage to both 
         // port & starboard sides so speed will reduced by Damage(), Damage()
         // Disable _repairBotsActive, shields, torpedo & laser cannons
         //
+        ///
+        /// REPAIR 'Health' VARIABLES INIT
+        /// Repair Bots are a Particle Effect when Repairs Powerup picked up
+        ///
+        _repairBotsActive = true;
+        ///
+        /// REPAIR 'Health' VARIABLES INIT - END
+        /// 
+
         _speed = _spaceshipSpeed; // initialize Ship/Player speed
+
+        ///
+        /// AMMO VARIABLES INITIALIZE
+        ///
         // Laser Cannon Ammo
         _currentAmmo = 5;
         _maxAmmo = 15;
         UIManager.Instance.SetMaxAmmo(_maxAmmo);
         UIManager.Instance.SetAmmo(_currentAmmo);
-        // Thrusters
+        ///
+        /// AMMO VARIABLES INITIALIZE - END
+        ///
+
+        ///
+        /// THRUSTERS VARIABLES INITIALIZE
+        ///
         _maxThrusters = 10.0f;
         _currentThrusters = 10.0f; // TODO: disable for beginning of game
         _thrustersRegenDelay = new WaitForSeconds(_thrustersInitialRegenDelay);
         _thrustersRegenTickDelay = new WaitForSeconds(_thrustersRegenTick);
         UIManager.Instance.SetMaxThrusters(_maxThrusters);
         UIManager.Instance.SetThrusters(_currentThrusters);
-
+        ///
+        /// THRUSTERS VARIABLES INIT - END
+        ///
         UIManager.Instance.UpdatePlayerLives(_playerLives);
-        _shieldOriginalSize = _shield.transform.localScale;
         _originalThrustersLocalScale = _thruster_left.transform.localScale;
+        ///
+        /// SHIELDS VARIABLES INITIALIZE
+        ///
+        _shieldOriginalSize = _shield.transform.localScale;
+        ///
+        /// SHIELDS VARIABLES INITIALIZE - END
+        ///
 
         GameObjectNullChecks();
     }
@@ -165,20 +227,41 @@ public class Player : MonoBehaviour
     {
         if (!_gameOver)
         {
-            if (RegenThrusters() && !_enableMainThrusters)
-            {
-                StartCoroutine(RegeneratorThrusters());
-            }
-
+            /// LASER CANNONS
             if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && Ammo() && !_freezeTorpedoLoaded)
             {
                 FireLaser();
             }
+            ///
+            /// FREEZE/EMP TORPEDO second fire User Input
+            ///
+            /// TORPEDO
             else if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && _freezeTorpedoLoaded)
             {
                 FireFreezeTorpedo();
             }
+            ///
+            /// FREEZE/EMP TORPEDO second fire User Input
+            ///
 
+            ///
+            /// AMMO - Out of Ammo SFX
+            /// 
+            else if (Input.GetKeyDown(KeyCode.Space) && !Ammo() && !_freezeTorpedoLoaded)
+            {
+                _sound.clip = _out_of_ammo_sfx;
+                _sound.PlayOneShot(_sound.clip);
+            }
+            ///
+            /// AMMO - Out of Ammo SFX - END
+            /// 
+
+            /// THRUSTERS
+            /// Regenerate, Burn & Disable
+            if (RegenThrusters() && !_enableMainThrusters)
+            {
+                StartCoroutine(RegeneratorThrusters());
+            }
             if (Input.GetKey(KeyCode.LeftShift) && Thrusters())
             {
                 EnableMainThrusters();
@@ -187,6 +270,8 @@ public class Player : MonoBehaviour
             {
                 DisableMainThrusters();
             }
+            /// THRUSTERS - END
+            ///
 
             // Below is for testing purposes only
             // CHEAT KEYS
@@ -205,8 +290,14 @@ public class Player : MonoBehaviour
     private void FireLaser() // Fire Laser Cannons & TripleShot
     {
         _nextFire = Time.time + _fireRate; // delay (in Seconds) how quickly the laser will fire
+        ///
+        /// AMMO TRACKING & UI UPDATE
+        ///
         _currentAmmo--;
         UIManager.Instance.SetAmmo(_currentAmmo);
+        ///
+        /// AMMO TRACKING & UI UPDATE - END
+        ///
         if (!_tripleShotActive) // Tripleshoot PowerUp
         {
             Vector3 _laserOrigin = transform.position + _laserOffset;
@@ -221,13 +312,20 @@ public class Player : MonoBehaviour
         }
     }
 
+    ///
+    /// FREEZE/EMP TORPEDO second fire User Input
+    ///
     private void FireFreezeTorpedo()
     {
+        // Remove 'Torpedo' Sprite once player launches
         _freezeTorpedoLoaded = false;
         _freezeTorpedoSprite.SetActive(false);
         var _torpedoLaunch = new Vector3(0, 1.85f, 0);
         Instantiate(_freezeTorpedo, _freezeTorpedoSprite.transform.position, Quaternion.identity);
     }
+    ///
+    /// FREEZE/EMP TORPEDO second fire User Input - END
+    ///
 
     private void CalculateMovement() // Ship movement, animate thrusters & screen clamps
     {
@@ -248,6 +346,7 @@ public class Player : MonoBehaviour
         // Animate Ship Tilting/Banking
         _anim.SetFloat("Tilt", horizontalInput); // * 2.0f);
 
+        /// Thrusters Left & Right (not MAIN THRUSTER)
         // Use the verticalInput 'W' or UpArrow * 1.75 as Thruster localScale multiplier
         float thruster_y = verticalInput * 1.75f;
 
@@ -309,7 +408,10 @@ public class Player : MonoBehaviour
         Destroy(this.gameObject);
     }
 
-    public void Damage() // ship & shield damage
+    ///
+    /// SHIELDS - SHIP DAMAGE ROUTINE
+    /// 
+    public void Damage() // Ship & Shield damage
     {
         if (_shieldBonus == 3 && !_bonusLifeOncePerLevel) // Enable 3x Shield Bonus 'hit'
         {
@@ -320,6 +422,7 @@ public class Player : MonoBehaviour
 
         if (_shieldActive)
         {
+            _sound.clip = _explosionSFX;
             _sound.PlayOneShot(_sound.clip);
             if (_shieldPower > 0)
             {
@@ -352,19 +455,32 @@ public class Player : MonoBehaviour
                 if (_playerLives < 1)
                 {
                     _gameOver = true;
+                    ///
+                    /// CAMERA SHAKE done via CINEMACHINE
+                    /// 
                     CinemachineShake.Instance.ShakeCamera(16f, 4f);
                     PlayerDeathSequence();
                     return;
                 }
 
+                ///
+                /// CAMERA SHAKE done via CINEMACHINE
+                /// 
                 CinemachineShake.Instance.ShakeCamera(5f, 1f);
                 SpaceshipDamaged();
             }
         }
     }
 
+
+    ///
+    /// SHIELDS - SHIP DAMAGE ROUTINE - END
+    /// 
     public void PlayerDeathSequence() // player death final sequence
     {
+        ///
+        /// SHIELDS - DISABLE PLAYER DEATH
+        /// 
         if (_shieldActive)
         {
             _shieldPower = 0;
@@ -372,11 +488,31 @@ public class Player : MonoBehaviour
             _shield.transform.localScale = _shieldOriginalSize;
             _shield.SetActive(false);
         }
+        ///
+        /// SHIELDS - DISABLE PLAYER DEATH - END
+        /// 
+
+        ///
+        /// FREEZE/EMP TORPEDO - DISABLE PLAYER DEATH
+        ///
         _freezeTorpedoLoaded = false;
         _freezeTorpedoSprite.SetActive(false);
+        ///
+        /// FREEZE/EMP TORPEDO - DISABLE PLAYER DEATH - END
+        ///
+
         gameObject.GetComponent<BoxCollider2D>().enabled = false;
+        _sound.clip = _explosionSFX;
         _sound.PlayOneShot(_sound.clip);
+
+        ///
+        /// THRUSTERS - DISABLE PLAYER DEATH
+        /// 
         _mainThrusters.SetActive(false);
+        ///
+        /// THRUSTERS - DISABLE PLAYER DEATH - END
+        ///
+
         _thruster_left.SetActive(false);
         _thruster_right.SetActive(false);
         _shipDamageLeft.SetActive(false);
@@ -384,7 +520,7 @@ public class Player : MonoBehaviour
         // Play Explosion animation, final Player Death sequence via animation event
         _anim.SetTrigger("GameOver");
         PlayerFinalExplosionPE.SetActive(true);
-        _sound.clip = _explosionFinale;
+        _sound.clip = _explosionFinaleSFX;
         _sound.PlayOneShot(_sound.clip);
     }
 
@@ -410,6 +546,7 @@ public class Player : MonoBehaviour
         {
             SpaceshipDamagedLeft();
         }
+        _sound.clip = _explosionSFX;
         _sound.PlayOneShot(_sound.clip);
     }
 
@@ -418,7 +555,6 @@ public class Player : MonoBehaviour
         _damagedLeft = true;
         _shipDamageLeft.SetActive(true);
         _animShipDamageLeft.SetTrigger("PlayerDamageLeft");
-        //_sound.PlayOneShot(_sound.clip);
     }
 
     private void SpaceshipDamagedRight() // ship starboard side damage
@@ -426,12 +562,20 @@ public class Player : MonoBehaviour
         _damagedRight = true;
         _shipDamageRight.SetActive(true);
         _animShipDamageRight.SetTrigger("PlayerDamageRight");
-        //_sound.PlayOneShot(_sound.clip);
     }
 
     private void OnTriggerEnter2D(Collider2D other) // collisions
     {
-        if (other.tag == "Enemy" || other.tag == "EnemyLaser")
+        if (other.tag == "Enemy")
+        {
+            bool FrozenEnemy = other.GetComponent<Enemy>().Frozen();
+            if (!FrozenEnemy)
+            {
+                Damage();
+            }
+        }
+
+        if (other.tag == "EnemyLaser")
         {
             Damage();
         }
@@ -470,34 +614,58 @@ public class Player : MonoBehaviour
                 _powerUpCountDownBar.SetActive(true);
                 StartCoroutine(PowerUpCoolDownRoutine(_speedCoolDown));
                 break;
+            /// 
+            /// SHIELD POWERUP
+            /// 
             case "Shield":
                 _shieldPower = 3; // # of hits before shield is destroyed
                 _shield.transform.localScale = _shieldOriginalSize; // reset shield graphic to initial size
                 _shieldActive = true;
                 _shield.SetActive(true); // enable the Shield gameObject
                 break;
+            /// 
+            /// SHIELD POWERUP - END
+            /// 
             case "EnergyCell":
                 LaserCannonsRefill(5);
                 break;
+            ///
+            /// REPAIR 'Health' POWERUP
+            /// 
             case "Repair":
                 RepairShip();
                 break;
+            ///
+            /// REPAIR 'Health' POWERUP - END
+            /// 
+
+            ///
+            /// FREEZE/EMP TORPEDO POWERUP
+            /// 
             case "FreezeTorpedo":
                 _freezeTorpedoLoaded = true;
                 _freezeTorpedoSprite.SetActive(true);
                 break;
+                ///
+                /// FREEZE/EMP TORPEDO POWERUP - END
+                ///
+
         }
-        //_audioSource.pitch = 1.0f;
-        //_audioSource.PlayOneShot(_PowerUpSFX);
     }
 
+    ///
+    /// AMMO FILL FUNCTION
+    ///
     private void LaserCannonsRefill(int ammo)
     {
-        _currentAmmo = _currentAmmo + ammo; // # of hits before shield is destroyed
+        _currentAmmo = _currentAmmo + ammo;
         if (_currentAmmo > 15)
             _currentAmmo = 15;
         UIManager.Instance.SetAmmo(_currentAmmo);
     }
+    ///
+    /// AMMO FILL FUNCTION - END
+    ///
 
     IEnumerator PowerUpCoolDownRoutine(float coolDown) // PowerUp Cooldown
     {
@@ -524,12 +692,16 @@ public class Player : MonoBehaviour
         {
             _newSpeed = _spaceshipSpeed * 1.75f;
         }
-
+        ///
+        /// THRUSTERS - SPEED CALC
+        /// 
         if (_enableMainThrusters) // Thrusters = speed * 250%
         {
             _newSpeed = _spaceshipSpeed * 2.50f;
         }
-
+        ///
+        /// THRUSTERS - SPEED CALC - END
+        /// 
         return _newSpeed;
     }
 
@@ -539,15 +711,25 @@ public class Player : MonoBehaviour
         UIManager.Instance.UpdateScore(_score);
     }
 
+    ///
+    /// AMMO BOOL FUNCTION
+    ///
     private bool Ammo() // True, if ship has Laser Cannon Energy
     {
         return (_currentAmmo > 0);
     }
+    ///
+    /// AMMO BOOL FUNCTION
+    ///
+
+    ///
+    /// MAIN THRUSTERS ROUTINES
+    ///
     private bool Thrusters() // True, if ship has Main Thruster power
     {
         return (_currentThrusters > 0);
     }
-    private bool RegenThrusters()
+    private bool RegenThrusters() // True, if ship's Main Thurster power < Max Thrusters
     {
         return (_currentThrusters < _maxThrusters);
     }
@@ -593,7 +775,13 @@ public class Player : MonoBehaviour
 
         _regeneratingThrusters = false;
     }
+    ///
+    /// MAIN THRUSTERS ROUTINES - END
+    ///
 
+    ///
+    /// REPAIR 'Health' Functions
+    /// 
     private void RepairShip()
     {
         if (_playerLives < 3)
@@ -627,8 +815,14 @@ public class Player : MonoBehaviour
         {
             if (!_bonusLifeOncePerLevel)
             {
+                ///
+                /// REPAIR POWERUP when No Shields
+                ///
                 _shieldBonus++;
                 UIManager.Instance.UpdateShieldBonusUI(_shieldBonus);
+                ///
+                /// REPAIR POWERUP when No Shields - END
+                ///
             }
         }
     }
@@ -657,4 +851,7 @@ public class Player : MonoBehaviour
         _damagedRight = false;
         _shipDamageRight.SetActive(false);
     }
+    ///
+    /// REPAIR 'Health' Functions - END
+    /// 
 }

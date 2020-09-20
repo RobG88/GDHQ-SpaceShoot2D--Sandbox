@@ -9,25 +9,44 @@ public class UIManager : MonoSingleton<UIManager>
     [SerializeField] Image _livesRemainingImage;
     [SerializeField] Text _livesRemainingText;
     [SerializeField] Sprite[] _livesSprites;
+
     [SerializeField] GameObject[] _shieldBonus;
+    [SerializeField] Text _bonusLife_text;
+
     [SerializeField] Text _gameOverText;
     [SerializeField] Text _restartGameText;
+
+    [SerializeField] GameObject _optionsMenu;
+    [SerializeField] GameObject _pausePanel;
+
+    ///
+    /// AMMO Variables
+    ///
     [SerializeField] Slider _ammoSlider;
     [SerializeField] Gradient _ammoBarGradient;
     [SerializeField] Image _ammoBarFill;
+    ///
+    /// AMMO Variables - END
+    ///
+
+    ///
+    /// MAIN THRUSTERS Variable
+    ///
     [SerializeField] Slider _thrustersSlider;
-    [SerializeField] Text _bonusLife_text;
-    [SerializeField] GameObject _optionsMenu;
-    [SerializeField] GameObject _pausePanel;
-    WaitForSeconds BonusLifePause = new WaitForSeconds(.25f);
+    ///
+    /// MAIN THRUSTERS Variable - END
+    ///
+
     [SerializeField] GameObject _SFXIcon;
     [SerializeField] GameObject _redSFXIcon;
     [SerializeField] GameObject _BGMIcon;
     [SerializeField] GameObject _redBGMIcon;
 
-    bool ShieldBonusActivated;
+    private bool ShieldBonusActivated;
 
-    bool _isGameOver = false;
+    private bool _isGameOver = false;
+
+    WaitForSeconds BonusLifePause = new WaitForSeconds(.25f);
 
     public override void Init()
     {
@@ -61,7 +80,6 @@ public class UIManager : MonoSingleton<UIManager>
 
     public void UpdateShieldBonusUI(int shieldBonus)
     {
-        // Debug.Log("SHield Bonus = " + shieldBonus);
         if (shieldBonus > 0 && shieldBonus < 4)
         {
             _shieldBonus[shieldBonus - 1].SetActive(true);
@@ -122,6 +140,9 @@ public class UIManager : MonoSingleton<UIManager>
         SceneManager.LoadScene("MainMenu"); // Scene 0 = 'MainMenu'
     }
 
+    ///
+    /// AMMO UI Functions
+    ///
     public void SetMaxAmmo(int ammo)
     {
         _ammoSlider.maxValue = ammo;
@@ -134,7 +155,13 @@ public class UIManager : MonoSingleton<UIManager>
         _ammoSlider.value = ammo;
         _ammoBarFill.color = _ammoBarGradient.Evaluate(_ammoSlider.normalizedValue);
     }
+    ///
+    /// AMMO UI Functions - END
+    ///
 
+    ///
+    /// MAIN THRUSTERS UI Functions
+    ///
     public void SetMaxThrusters(float thrusters)
     {
         _thrustersSlider.maxValue = thrusters;
@@ -144,6 +171,9 @@ public class UIManager : MonoSingleton<UIManager>
     {
         _thrustersSlider.value = thrusters;
     }
+    ///
+    /// MAIN THRUSTERS UI Functions - END
+    ///
 
     public void OptionsMenu()
     {

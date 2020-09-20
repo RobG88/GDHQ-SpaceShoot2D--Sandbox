@@ -6402,7 +6402,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1418636329}
   m_Layer: 0
-  m_Name: DemoObjects
+  m_Name: DemoSceneObjects
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9245,8 +9245,11 @@ MonoBehaviour:
   - {fileID: 1617567617}
   - {fileID: 1031321509}
   - {fileID: 1976537887}
+  _bonusLife_text: {fileID: 46903179}
   _gameOverText: {fileID: 955162985}
   _restartGameText: {fileID: 1858862902}
+  _optionsMenu: {fileID: 8797042894752096264}
+  _pausePanel: {fileID: 919706246}
   _ammoSlider: {fileID: 1890713643}
   _ammoBarGradient:
     serializedVersion: 2
@@ -9279,9 +9282,6 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   _ammoBarFill: {fileID: 1931503715}
   _thrustersSlider: {fileID: 822232730}
-  _bonusLife_text: {fileID: 46903179}
-  _optionsMenu: {fileID: 8797042894752096264}
-  _pausePanel: {fileID: 919706246}
   _SFXIcon: {fileID: 1271476176}
   _redSFXIcon: {fileID: 780776560}
   _BGMIcon: {fileID: 1779290562}
@@ -31298,6 +31298,21 @@ PrefabInstance:
       propertyPath: _timesUpText
       value: 
       objectReference: {fileID: 1520495545}
+    - target: {fileID: 8784728883358937867, guid: bf5e68af71f031641b12c6902f7f1adb,
+        type: 3}
+      propertyPath: _explosionSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: a885c043fab7e46438bba03ba9dab6bc, type: 3}
+    - target: {fileID: 8784728883358937867, guid: bf5e68af71f031641b12c6902f7f1adb,
+        type: 3}
+      propertyPath: _out_of_ammo_sfx
+      value: 
+      objectReference: {fileID: 8300000, guid: aec0d27b95a7cca40b82652c20d52b15, type: 3}
+    - target: {fileID: 8784728883358937867, guid: bf5e68af71f031641b12c6902f7f1adb,
+        type: 3}
+      propertyPath: _explosionFinaleSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: ff860ce6e54138043bb5c68c193c0087, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bf5e68af71f031641b12c6902f7f1adb, type: 3}
 --- !u!1001 &8795617243143241138
