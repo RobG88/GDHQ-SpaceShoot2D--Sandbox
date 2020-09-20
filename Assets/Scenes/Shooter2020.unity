@@ -9282,6 +9282,10 @@ MonoBehaviour:
   _bonusLife_text: {fileID: 46903179}
   _optionsMenu: {fileID: 8797042894752096264}
   _pausePanel: {fileID: 919706246}
+  _SFXIcon: {fileID: 1271476176}
+  _redSFXIcon: {fileID: 780776560}
+  _BGMIcon: {fileID: 1779290562}
+  _redBGMIcon: {fileID: 1463994671}
 --- !u!4 &1809392556 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1107463814815186923, guid: aba43e90741384446baa4ce3e0c8f28f,
@@ -9914,13 +9918,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _MasterMixer: {fileID: 24100000, guid: 3cf01c78fc8735e42a111a0c7b6df03a, type: 2}
-  audioSettings:
-  - slider: {fileID: 1429099362}
-    redX: {fileID: 0}
-    exposedParam: BackgroundMusicVolume
-  - slider: {fileID: 1571764486}
-    redX: {fileID: 0}
-    exposedParam: SFXVolume
   _SFX_Volume_Slider: {fileID: 1571764486}
   _Music_Volume_Slider: {fileID: 1429099362}
   _SFX_Exposed_parameter: SFXVolume

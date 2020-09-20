@@ -37,28 +37,17 @@ public class AudioManager : MonoSingleton<AudioManager>
     {
         _MasterMixer.SetFloat("MasterVolume", volume.value);
     }
-    /*
-    public void SetBGMVolume(Slider volume)
-    {
-        _MasterMixer.SetFloat("BackgroundMusicVolume", volume.value);
-        PlayerPrefs.SetFloat(_BGM_Exposed_parameter, volume.value);
-    }
 
-    public void SetSFXVolume(Slider volume)
-    {
-        _MasterMixer.SetFloat("SFXVolume", volume.value);
-        PlayerPrefs.SetFloat(_SFX_Exposed_parameter, volume.value);
-    }
-    */
     public void SetFXVol(float sfxLevel)
     {
+        UIManager.Instance.EnableDisableSFXIcon(sfxLevel <= _SFX_Volume_Slider.minValue);
         _MasterMixer.SetFloat(_SFX_Exposed_parameter, sfxLevel);
         PlayerPrefs.SetFloat(_SFX_Exposed_parameter, sfxLevel);
-        //AudioManager.Instance._MasterMixer.SetFloat(_SFX_Exposed_parameter, Mathf.Log10(sfxLevel) * 20);
     }
 
     public void SetBGMusicVol(float BGMusicLevel)
     {
+        UIManager.Instance.EnableDisableBGMIcon(BGMusicLevel <= _Music_Volume_Slider.minValue);
         PlayerPrefs.SetFloat(_BGM_Exposed_parameter, BGMusicLevel);
         AudioManager.Instance._MasterMixer.SetFloat("BackgroundMusicVolume", Mathf.Log10(BGMusicLevel) * 20);
     }

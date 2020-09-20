@@ -20,6 +20,11 @@ public class UIManager : MonoSingleton<UIManager>
     [SerializeField] GameObject _optionsMenu;
     [SerializeField] GameObject _pausePanel;
     WaitForSeconds BonusLifePause = new WaitForSeconds(.25f);
+    [SerializeField] GameObject _SFXIcon;
+    [SerializeField] GameObject _redSFXIcon;
+    [SerializeField] GameObject _BGMIcon;
+    [SerializeField] GameObject _redBGMIcon;
+
     bool ShieldBonusActivated;
 
     bool _isGameOver = false;
@@ -167,5 +172,16 @@ public class UIManager : MonoSingleton<UIManager>
             _bonusLife_text.color = colorSilver;
             yield return BonusLifePause;
         }
+    }
+    public void EnableDisableSFXIcon(bool isDisable)
+    {
+        _redSFXIcon.GetComponent<Image>().enabled = isDisable;
+        _SFXIcon.GetComponent<Image>().enabled = !isDisable;
+    }
+
+    public void EnableDisableBGMIcon(bool isDisable)
+    {
+        _redBGMIcon.GetComponent<Image>().enabled = isDisable;
+        _BGMIcon.GetComponent<Image>().enabled = !isDisable;
     }
 }
