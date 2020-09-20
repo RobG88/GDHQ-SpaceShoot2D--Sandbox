@@ -81,6 +81,7 @@ public class UIManager : MonoSingleton<UIManager>
             // TODO:
             // Display MAX SHIELD PROTECTION
             // Blink
+            // Paladin "Max Shield Protection reached"
         }
     }
 
@@ -153,7 +154,6 @@ public class UIManager : MonoSingleton<UIManager>
 
     IEnumerator BonusLifeMessage()
     {
-
         Color colorBlue;
         Color colorSilver;
 

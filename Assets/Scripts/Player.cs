@@ -80,6 +80,7 @@ public class Player : MonoBehaviour
     [SerializeField] bool _bonusLife;
     bool _bonusLifeOncePerLevel;
     Vector3 _shieldOriginalSize;
+    private bool _repairBotsActive;
     [SerializeField] GameObject _repairBotsPE;
 
     private AudioSource _sound;
@@ -119,6 +120,8 @@ public class Player : MonoBehaviour
         // Ship speed
         // At the start of the game the ship has taken damage to both 
         // port & starboard sides so speed will reduced by Damage(), Damage()
+        // Disable _repairBotsActive, shields, torpedo & laser cannons
+        //
         _speed = _spaceshipSpeed; // initialize Ship/Player speed
         // Laser Cannon Ammo
         _currentAmmo = 5;
@@ -171,7 +174,7 @@ public class Player : MonoBehaviour
             {
                 FireLaser();
             }
-            else if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && Ammo() && _freezeTorpedoLoaded)
+            else if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && _freezeTorpedoLoaded)
             {
                 FireFreezeTorpedo();
             }
@@ -188,7 +191,8 @@ public class Player : MonoBehaviour
             // Below is for testing purposes only
             // CHEAT KEYS
             if (Input.GetKeyDown(KeyCode.Q)) { _wrapShip = !_wrapShip; }
-            if (Input.GetKeyDown(KeyCode.B)) { _tripleShotActive = !_tripleShotActive; }
+            if (Input.GetKeyDown(KeyCode.T)) { _tripleShotActive = !_tripleShotActive; }
+            if (Input.GetKeyDown(KeyCode.B)) { RepairBotsEnabled(); }
         }
     }
 
@@ -617,6 +621,7 @@ public class Player : MonoBehaviour
             {
                 SpaceshipRepairRight();
             }
+            RepairBotsDeployed();
         }
         else
         {
@@ -630,7 +635,15 @@ public class Player : MonoBehaviour
 
     private void RepairBotsDeployed()
     {
+        _repairBotsPE.SetActive(_repairBotsActive);
+    }
 
+    private void RepairBotsEnabled()
+    {
+        // Paladin announcement 'RepairBots restored'
+        // Play RepairBots burst
+        _repairBotsActive = true;
+        RepairBotsDeployed();
     }
 
     private void SpaceshipRepairLeft() // ship port side damage

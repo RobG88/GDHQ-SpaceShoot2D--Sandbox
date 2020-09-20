@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
-
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 public class GameManager : MonoSingleton<GameManager>
 {
     [SerializeField] bool _isGameOver = false;
@@ -56,22 +58,30 @@ public class GameManager : MonoSingleton<GameManager>
 
     public void QuitGame()
     {
+#if UNITY_EDITOR
+        EditorApplication.isPlaying = false;
+#else
         Application.Quit();
+#endif
     }
 
     public void PauseGame()
     {
+
+        //_pausePanel.SetActive(true);
+        Time.timeScale = Time.timeScale == 0 ? 1 : 0;
+
         if (!_gamePaused)
         {
             _gamePaused = true;
             _pausePanel.SetActive(true);
-            Time.timeScale = 0;
+            //Time.timeScale = 0;
         }
         else
         {
             _gamePaused = false;
             _pausePanel.SetActive(false);
-            Time.timeScale = 1;
+            //Time.timeScale = 1;
         }
     }
 
