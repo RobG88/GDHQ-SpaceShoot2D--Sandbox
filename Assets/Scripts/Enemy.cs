@@ -22,14 +22,6 @@ public class Enemy : MonoBehaviour
     BoxCollider2D _boxCollider2D;
     AudioSource _sound;
 
-    ///
-    /// FREEZE/EMP TORPEDO Secondary Fire Variable
-    ///
-    bool isFrozen = false;
-    ///
-    /// FREEZE/EMP TORPEDO Secondary Fire Variable - END
-    ///
-
     void Start()
     {
         _anim = GetComponent<Animator>();
@@ -58,10 +50,8 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        ///
-        /// FREEZE/EMP TORPEDO - If enemy is frozen, can shoot, _CanFire is reset upon Thaw
-        /// 
-        if (Time.time > _canFire && transform.position.y < 6.5f && !isFrozen)
+
+        if (Time.time > _canFire && transform.position.y < 6.5f)
         {
             _fireRate = Random.Range(3f, 7f);
             _canFire = Time.time + _fireRate;
@@ -113,13 +103,6 @@ public class Enemy : MonoBehaviour
                 _boxCollider2D.enabled = false;
                 //_audioSource.Play();
                 _sound.PlayOneShot(_sound.clip);
-                ///
-                /// CAMERA SHAKE
-                /// 
-                CinemachineShake.Instance.ShakeCamera(5f, 1f);
-                ///
-                /// CAMERA SHAKE
-                /// 
                 // trigger explosion
                 _anim.SetTrigger("OnEnemyDeath");
                 // destory self (enemy)
@@ -135,13 +118,6 @@ public class Enemy : MonoBehaviour
                 _boxCollider2D.enabled = false;
                 //_audioSource.Play();
                 _sound.PlayOneShot(_sound.clip);
-                ///
-                /// CAMERA SHAKE
-                /// 
-                CinemachineShake.Instance.ShakeCamera(5f, 1f);
-                ///
-                /// CAMERA SHAKE
-                /// 
                 // Trigger explosion
                 _anim.SetTrigger("OnEnemyDeath");
                 // destory self (enemy)
@@ -157,26 +133,4 @@ public class Enemy : MonoBehaviour
     {
         Destroy(gameObject);
     }
-
-    ///
-    /// FREEZE/EMP TORPEDO Secondary Fire Functions
-    ///
-    public void FreezeEnemyShip(float speed)
-    {
-        _tempSpeed = _enemySpeed;
-        _enemySpeed = speed;
-        isFrozen = true;
-    }
-
-    public void ThawedEnemyShip()
-    {
-        _enemySpeed = _tempSpeed;
-        isFrozen = false;
-        _canFire = Time.time + _fireRate; // reset CanFire time after thaw
-    }
-
-    public bool Frozen() { return isFrozen; }
-    ///
-    /// FREEZE/EMP TORPEDO Secondary Fire Functions - END
-    ///
 }

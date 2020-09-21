@@ -43,9 +43,6 @@ public class Player : MonoBehaviour
     [SerializeField] GameObject _powerUpCountDownBar;
     [SerializeField] Text _timesUpText;
 
-    //float _xScreenClampRight = 10.75f; // Original setting
-    //float _xLeftBoundry = -10.75f; // Original setting
-
     float _xScreenClampRight = 9.5f;
     float _xLeftBoundry = -9.5f;
     float _yScreenClampUpper = 0;
@@ -72,71 +69,15 @@ public class Player : MonoBehaviour
     [SerializeField] float _speedCoolDown = 5.0f;
     [SerializeField] bool _speedActive = false;
 
-    /// 
-    /// SHIELD VARIABLES
-    /// 
-    [SerializeField] bool _shieldActive = false;
-    [SerializeField] GameObject _shield;
-    [SerializeField] int _shieldPower;
-    [SerializeField] int _shieldBonus;
-    Vector3 _shieldOriginalSize;
-    /// 
-    /// SHIELD VARIABLES - END
-    /// 
-
     [SerializeField] bool _bonusLife;
     bool _bonusLifeOncePerLevel;
-    ///
-    /// REPAIR 'Health' VARIABLES
-    ///
-    private bool _repairBotsActive;
-    [SerializeField] GameObject _repairBotsPE;
-    ///
-    /// REPAIR 'Health' VARIABLES - END
-    ///
 
     private AudioSource _sound;
     [SerializeField] AudioClip _explosionFinaleSFX;
     [SerializeField] AudioClip _explosionSFX;
     [SerializeField] GameObject PlayerFinalExplosionPE;
 
-    ///
-    /// AMMO VARIABLES
-    ///
-    private int _maxAmmo, _currentAmmo;
-    [SerializeField] AudioClip _out_of_ammo_sfx;
-    ///
-    /// AMMO VARIABLES - END
-    ///
-
-    ///
-    /// THRUSTER VARIABLES
-    ///
-    [SerializeField] GameObject _mainThrusters;
-    [SerializeField] private float _maxThrusters, _currentThrusters;
-    private float _thrusterBurnRate = 2.5f;
-    [SerializeField] private bool _enableMainThrusters;
-    [SerializeField] private bool _regeneratingThrusters;
-    private float _thrustersInitialRegenDelay = 2.0f; // wait 2.0f seconds before THRUSTERS begin to regenerate
-    private float _thrustersRegenTick = 0.1f;
-    private WaitForSeconds _thrustersRegenDelay;
-    private WaitForSeconds _thrustersRegenTickDelay;
-    ///
-    /// THRUSTER VARIABLES - END
-    ///
-
-    ///
-    /// FREEZE/EMP TORPEDO second fire VARIABLES
-    ///
-    [SerializeField] GameObject _freezeTorpedo;
-    private bool _freezeTorpedoLoaded;
-    [SerializeField] GameObject _freezeTorpedoSprite;
-    ///
-    /// FREEZE/EMP TORPEDO second fire VARIABLES - END
-    ///
-
     Animator _anim; // Player Death Explosion with Event to clean-up
-
 
     void Start()
     {
@@ -157,50 +98,11 @@ public class Player : MonoBehaviour
         // port & starboard sides so speed will reduced by Damage(), Damage()
         // Disable _repairBotsActive, shields, torpedo & laser cannons
         //
-        ///
-        /// REPAIR 'Health' VARIABLES INIT
-        /// Repair Bots are a Particle Effect when Repairs Powerup picked up
-        ///
-        _repairBotsActive = true;
-        ///
-        /// REPAIR 'Health' VARIABLES INIT - END
-        /// 
 
         _speed = _spaceshipSpeed; // initialize Ship/Player speed
 
-        ///
-        /// AMMO VARIABLES INITIALIZE
-        ///
-        // Laser Cannon Ammo
-        _currentAmmo = 5;
-        _maxAmmo = 15;
-        UIManager.Instance.SetMaxAmmo(_maxAmmo);
-        UIManager.Instance.SetAmmo(_currentAmmo);
-        ///
-        /// AMMO VARIABLES INITIALIZE - END
-        ///
-
-        ///
-        /// THRUSTERS VARIABLES INITIALIZE
-        ///
-        _maxThrusters = 10.0f;
-        _currentThrusters = 10.0f; // TODO: disable for beginning of game
-        _thrustersRegenDelay = new WaitForSeconds(_thrustersInitialRegenDelay);
-        _thrustersRegenTickDelay = new WaitForSeconds(_thrustersRegenTick);
-        UIManager.Instance.SetMaxThrusters(_maxThrusters);
-        UIManager.Instance.SetThrusters(_currentThrusters);
-        ///
-        /// THRUSTERS VARIABLES INIT - END
-        ///
         UIManager.Instance.UpdatePlayerLives(_playerLives);
         _originalThrustersLocalScale = _thruster_left.transform.localScale;
-        ///
-        /// SHIELDS VARIABLES INITIALIZE
-        ///
-        _shieldOriginalSize = _shield.transform.localScale;
-        ///
-        /// SHIELDS VARIABLES INITIALIZE - END
-        ///
 
         GameObjectNullChecks();
     }
@@ -228,56 +130,16 @@ public class Player : MonoBehaviour
         if (!_gameOver)
         {
             /// LASER CANNONS
-            if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && Ammo() && !_freezeTorpedoLoaded)
+            if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire)
             {
                 FireLaser();
             }
-            ///
-            /// FREEZE/EMP TORPEDO second fire User Input
-            ///
-            /// TORPEDO
-            else if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && _freezeTorpedoLoaded)
-            {
-                FireFreezeTorpedo();
-            }
-            ///
-            /// FREEZE/EMP TORPEDO second fire User Input
-            ///
-
-            ///
-            /// AMMO - Out of Ammo SFX
-            /// 
-            else if (Input.GetKeyDown(KeyCode.Space) && !Ammo() && !_freezeTorpedoLoaded)
-            {
-                _sound.clip = _out_of_ammo_sfx;
-                _sound.PlayOneShot(_sound.clip);
-            }
-            ///
-            /// AMMO - Out of Ammo SFX - END
-            /// 
-
-            /// THRUSTERS
-            /// Regenerate, Burn & Disable
-            if (RegenThrusters() && !_enableMainThrusters)
-            {
-                StartCoroutine(RegeneratorThrusters());
-            }
-            if (Input.GetKey(KeyCode.LeftShift) && Thrusters())
-            {
-                EnableMainThrusters();
-            }
-            else if (Input.GetKeyUp(KeyCode.LeftShift))
-            {
-                DisableMainThrusters();
-            }
-            /// THRUSTERS - END
-            ///
 
             // Below is for testing purposes only
             // CHEAT KEYS
             if (Input.GetKeyDown(KeyCode.Q)) { _wrapShip = !_wrapShip; }
             if (Input.GetKeyDown(KeyCode.T)) { _tripleShotActive = !_tripleShotActive; }
-            if (Input.GetKeyDown(KeyCode.B)) { RepairBotsEnabled(); }
+
         }
     }
 
@@ -290,14 +152,7 @@ public class Player : MonoBehaviour
     private void FireLaser() // Fire Laser Cannons & TripleShot
     {
         _nextFire = Time.time + _fireRate; // delay (in Seconds) how quickly the laser will fire
-        ///
-        /// AMMO TRACKING & UI UPDATE
-        ///
-        _currentAmmo--;
-        UIManager.Instance.SetAmmo(_currentAmmo);
-        ///
-        /// AMMO TRACKING & UI UPDATE - END
-        ///
+
         if (!_tripleShotActive) // Tripleshoot PowerUp
         {
             Vector3 _laserOrigin = transform.position + _laserOffset;
@@ -311,21 +166,6 @@ public class Player : MonoBehaviour
             Destroy(TripleShot, 1.5f);
         }
     }
-
-    ///
-    /// FREEZE/EMP TORPEDO second fire User Input
-    ///
-    private void FireFreezeTorpedo()
-    {
-        // Remove 'Torpedo' Sprite once player launches
-        _freezeTorpedoLoaded = false;
-        _freezeTorpedoSprite.SetActive(false);
-        var _torpedoLaunch = new Vector3(0, 1.85f, 0);
-        Instantiate(_freezeTorpedo, _freezeTorpedoSprite.transform.position, Quaternion.identity);
-    }
-    ///
-    /// FREEZE/EMP TORPEDO second fire User Input - END
-    ///
 
     private void CalculateMovement() // Ship movement, animate thrusters & screen clamps
     {
@@ -408,110 +248,36 @@ public class Player : MonoBehaviour
         Destroy(this.gameObject);
     }
 
-    ///
-    /// SHIELDS - SHIP DAMAGE ROUTINE
-    /// 
     public void Damage() // Ship & Shield damage
     {
-        if (_shieldBonus == 3 && !_bonusLifeOncePerLevel) // Enable 3x Shield Bonus 'hit'
-        {
-            _bonusLife = true;
-            _shieldBonus = 0;
-            _bonusLifeOncePerLevel = true;
-        }
 
-        if (_shieldActive)
+        if (_bonusLife)
         {
-            _sound.clip = _explosionSFX;
-            _sound.PlayOneShot(_sound.clip);
-            if (_shieldPower > 0)
-            {
-                _shieldPower--;
-                _shield.transform.localScale -= new Vector3(0.5f, 0.5f, 0.5f);
-            }
-            if (_shieldPower == 0)
-            {
-                _shieldActive = false;
-                _shieldPower = 3; // reset Shield 'hits' remain value
-                _shield.transform.localScale = _shieldOriginalSize;
-                _shield.SetActive(false);
-            }
+            _bonusLife = false;
         }
         else
         {
-            if (_bonusLife)
-            {
-                UIManager.Instance.UpdateShieldBonusUI(_shieldBonus);
-                _bonusLife = false;
-            }
-            else
-            {
-                _playerLives--;
-                UIManager.Instance.UpdatePlayerLives(_playerLives);
-                _bonusLifeOncePerLevel = true;
-                _shieldBonus = 0;
-                UIManager.Instance.UpdateShieldBonusUI(_shieldBonus);
+            _playerLives--;
+            UIManager.Instance.UpdatePlayerLives(_playerLives);
+            _bonusLifeOncePerLevel = true;
 
-                if (_playerLives < 1)
-                {
-                    _gameOver = true;
-                    ///
-                    /// CAMERA SHAKE done via CINEMACHINE
-                    /// 
-                    CinemachineShake.Instance.ShakeCamera(16f, 4f);
-                    PlayerDeathSequence();
-                    return;
-                }
+            if (_playerLives < 1)
+            {
+                _gameOver = true;
 
-                ///
-                /// CAMERA SHAKE done via CINEMACHINE
-                /// 
-                CinemachineShake.Instance.ShakeCamera(5f, 1f);
-                SpaceshipDamaged();
+                PlayerDeathSequence();
+                return;
             }
+
+            SpaceshipDamaged();
         }
     }
 
-
-    ///
-    /// SHIELDS - SHIP DAMAGE ROUTINE - END
-    /// 
     public void PlayerDeathSequence() // player death final sequence
     {
-        ///
-        /// SHIELDS - DISABLE PLAYER DEATH
-        /// 
-        if (_shieldActive)
-        {
-            _shieldPower = 0;
-            _shieldActive = false;
-            _shield.transform.localScale = _shieldOriginalSize;
-            _shield.SetActive(false);
-        }
-        ///
-        /// SHIELDS - DISABLE PLAYER DEATH - END
-        /// 
-
-        ///
-        /// FREEZE/EMP TORPEDO - DISABLE PLAYER DEATH
-        ///
-        _freezeTorpedoLoaded = false;
-        _freezeTorpedoSprite.SetActive(false);
-        ///
-        /// FREEZE/EMP TORPEDO - DISABLE PLAYER DEATH - END
-        ///
-
         gameObject.GetComponent<BoxCollider2D>().enabled = false;
         _sound.clip = _explosionSFX;
         _sound.PlayOneShot(_sound.clip);
-
-        ///
-        /// THRUSTERS - DISABLE PLAYER DEATH
-        /// 
-        _mainThrusters.SetActive(false);
-        ///
-        /// THRUSTERS - DISABLE PLAYER DEATH - END
-        ///
 
         _thruster_left.SetActive(false);
         _thruster_right.SetActive(false);
@@ -568,11 +334,7 @@ public class Player : MonoBehaviour
     {
         if (other.tag == "Enemy")
         {
-            bool FrozenEnemy = other.GetComponent<Enemy>().Frozen();
-            if (!FrozenEnemy)
-            {
                 Damage();
-            }
         }
 
         if (other.tag == "EnemyLaser")
@@ -602,7 +364,6 @@ public class Player : MonoBehaviour
         {
             case "TripleShot":
                 _tripleShotActive = true;
-                LaserCannonsRefill(15);
                 //_timesUpText.text = _powerUpType;
                 // Enable PowerUpCountDownBar
                 _powerUpCountDownBar.SetActive(true);
@@ -614,58 +375,8 @@ public class Player : MonoBehaviour
                 _powerUpCountDownBar.SetActive(true);
                 StartCoroutine(PowerUpCoolDownRoutine(_speedCoolDown));
                 break;
-            /// 
-            /// SHIELD POWERUP
-            /// 
-            case "Shield":
-                _shieldPower = 3; // # of hits before shield is destroyed
-                _shield.transform.localScale = _shieldOriginalSize; // reset shield graphic to initial size
-                _shieldActive = true;
-                _shield.SetActive(true); // enable the Shield gameObject
-                break;
-            /// 
-            /// SHIELD POWERUP - END
-            /// 
-            case "EnergyCell":
-                LaserCannonsRefill(5);
-                break;
-            ///
-            /// REPAIR 'Health' POWERUP
-            /// 
-            case "Repair":
-                RepairShip();
-                break;
-            ///
-            /// REPAIR 'Health' POWERUP - END
-            /// 
-
-            ///
-            /// FREEZE/EMP TORPEDO POWERUP
-            /// 
-            case "FreezeTorpedo":
-                _freezeTorpedoLoaded = true;
-                _freezeTorpedoSprite.SetActive(true);
-                break;
-                ///
-                /// FREEZE/EMP TORPEDO POWERUP - END
-                ///
-
         }
     }
-
-    ///
-    /// AMMO FILL FUNCTION
-    ///
-    private void LaserCannonsRefill(int ammo)
-    {
-        _currentAmmo = _currentAmmo + ammo;
-        if (_currentAmmo > 15)
-            _currentAmmo = 15;
-        UIManager.Instance.SetAmmo(_currentAmmo);
-    }
-    ///
-    /// AMMO FILL FUNCTION - END
-    ///
 
     IEnumerator PowerUpCoolDownRoutine(float coolDown) // PowerUp Cooldown
     {
@@ -692,16 +403,6 @@ public class Player : MonoBehaviour
         {
             _newSpeed = _spaceshipSpeed * 1.75f;
         }
-        ///
-        /// THRUSTERS - SPEED CALC
-        /// 
-        if (_enableMainThrusters) // Thrusters = speed * 250%
-        {
-            _newSpeed = _spaceshipSpeed * 2.50f;
-        }
-        ///
-        /// THRUSTERS - SPEED CALC - END
-        /// 
         return _newSpeed;
     }
 
@@ -710,148 +411,4 @@ public class Player : MonoBehaviour
         _score += scoreAmount;
         UIManager.Instance.UpdateScore(_score);
     }
-
-    ///
-    /// AMMO BOOL FUNCTION
-    ///
-    private bool Ammo() // True, if ship has Laser Cannon Energy
-    {
-        return (_currentAmmo > 0);
-    }
-    ///
-    /// AMMO BOOL FUNCTION
-    ///
-
-    ///
-    /// MAIN THRUSTERS ROUTINES
-    ///
-    private bool Thrusters() // True, if ship has Main Thruster power
-    {
-        return (_currentThrusters > 0);
-    }
-    private bool RegenThrusters() // True, if ship's Main Thurster power < Max Thrusters
-    {
-        return (_currentThrusters < _maxThrusters);
-    }
-    private void EnableMainThrusters()
-    {
-        _regeneratingThrusters = false;
-        _enableMainThrusters = true;
-        _mainThrusters.SetActive(_enableMainThrusters);
-
-        if (_currentThrusters > 0)
-        {
-            _currentThrusters -= _thrusterBurnRate * Time.deltaTime;
-
-            if (_currentThrusters <= 0)
-            {
-                _currentThrusters = 0;
-                _enableMainThrusters = false;
-                _mainThrusters.SetActive(_enableMainThrusters);
-                _speed = CalculateShipSpeed();
-            }
-
-            UIManager.Instance.SetThrusters(_currentThrusters);
-        }
-    }
-
-    private void DisableMainThrusters()
-    {
-        _enableMainThrusters = false;
-        _mainThrusters.SetActive(_enableMainThrusters);
-    }
-    private IEnumerator RegeneratorThrusters()
-    {
-        _regeneratingThrusters = true;
-
-        yield return _thrustersRegenDelay; // cahced WaitForSeconds(_thrustersInitialRegenDelay)
-
-        while (_currentThrusters < _maxThrusters && _regeneratingThrusters)
-        {
-            _currentThrusters += _maxThrusters / 100000;
-            UIManager.Instance.SetThrusters(_currentThrusters);
-            yield return _thrustersRegenTickDelay;
-        }
-
-        _regeneratingThrusters = false;
-    }
-    ///
-    /// MAIN THRUSTERS ROUTINES - END
-    ///
-
-    ///
-    /// REPAIR 'Health' Functions
-    /// 
-    private void RepairShip()
-    {
-        if (_playerLives < 3)
-        {
-            _playerLives++;
-            UIManager.Instance.UpdatePlayerLives(_playerLives);
-
-            if (_damagedLeft && _damagedRight)
-            {
-                int RND_Damage = Random.Range(0, 2);
-                if (RND_Damage == 0)
-                {
-                    SpaceshipRepairLeft();
-                }
-                else if (RND_Damage == 1)
-                {
-                    SpaceshipRepairRight();
-                }
-            }
-            else if (_damagedLeft && !_damagedRight)
-            {
-                SpaceshipRepairLeft();
-            }
-            else if (!_damagedLeft && _damagedRight)
-            {
-                SpaceshipRepairRight();
-            }
-            RepairBotsDeployed();
-        }
-        else
-        {
-            if (!_bonusLifeOncePerLevel)
-            {
-                ///
-                /// REPAIR POWERUP when No Shields
-                ///
-                _shieldBonus++;
-                UIManager.Instance.UpdateShieldBonusUI(_shieldBonus);
-                ///
-                /// REPAIR POWERUP when No Shields - END
-                ///
-            }
-        }
-    }
-
-    private void RepairBotsDeployed()
-    {
-        _repairBotsPE.SetActive(_repairBotsActive);
-    }
-
-    private void RepairBotsEnabled()
-    {
-        // Paladin announcement 'RepairBots restored'
-        // Play RepairBots burst
-        _repairBotsActive = true;
-        RepairBotsDeployed();
-    }
-
-    private void SpaceshipRepairLeft() // ship port side damage
-    {
-        _damagedLeft = false;
-        _shipDamageLeft.SetActive(false);
-    }
-
-    private void SpaceshipRepairRight() // ship starboard side damage
-    {
-        _damagedRight = false;
-        _shipDamageRight.SetActive(false);
-    }
-    ///
-    /// REPAIR 'Health' Functions - END
-    /// 
 }

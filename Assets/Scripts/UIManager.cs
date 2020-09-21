@@ -19,24 +19,6 @@ public class UIManager : MonoSingleton<UIManager>
     [SerializeField] GameObject _optionsMenu;
     [SerializeField] GameObject _pausePanel;
 
-    ///
-    /// AMMO Variables
-    ///
-    [SerializeField] Slider _ammoSlider;
-    [SerializeField] Gradient _ammoBarGradient;
-    [SerializeField] Image _ammoBarFill;
-    ///
-    /// AMMO Variables - END
-    ///
-
-    ///
-    /// MAIN THRUSTERS Variable
-    ///
-    [SerializeField] Slider _thrustersSlider;
-    ///
-    /// MAIN THRUSTERS Variable - END
-    ///
-
     [SerializeField] GameObject _SFXIcon;
     [SerializeField] GameObject _redSFXIcon;
     [SerializeField] GameObject _BGMIcon;
@@ -139,41 +121,6 @@ public class UIManager : MonoSingleton<UIManager>
     {
         SceneManager.LoadScene("MainMenu"); // Scene 0 = 'MainMenu'
     }
-
-    ///
-    /// AMMO UI Functions
-    ///
-    public void SetMaxAmmo(int ammo)
-    {
-        _ammoSlider.maxValue = ammo;
-        _ammoSlider.value = ammo;
-
-        _ammoBarFill.color = _ammoBarGradient.Evaluate(1f);
-    }
-    public void SetAmmo(int ammo)
-    {
-        _ammoSlider.value = ammo;
-        _ammoBarFill.color = _ammoBarGradient.Evaluate(_ammoSlider.normalizedValue);
-    }
-    ///
-    /// AMMO UI Functions - END
-    ///
-
-    ///
-    /// MAIN THRUSTERS UI Functions
-    ///
-    public void SetMaxThrusters(float thrusters)
-    {
-        _thrustersSlider.maxValue = thrusters;
-        _thrustersSlider.value = thrusters;
-    }
-    public void SetThrusters(float thrusters)
-    {
-        _thrustersSlider.value = thrusters;
-    }
-    ///
-    /// MAIN THRUSTERS UI Functions - END
-    ///
 
     public void OptionsMenu()
     {

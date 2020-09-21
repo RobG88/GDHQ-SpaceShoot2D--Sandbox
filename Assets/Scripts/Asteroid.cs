@@ -140,7 +140,6 @@ public class Asteroid : MonoBehaviour
 
     void Destroyed()
     {
-        CinemachineShake.Instance.ShakeCamera(12.0f, 3.0f);
         // Animate Explosion
         _anim.SetTrigger("AsteroidDestroyed");
 
