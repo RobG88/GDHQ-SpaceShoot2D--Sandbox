@@ -9757,6 +9757,7 @@ MonoBehaviour:
   _restartGameText: {fileID: 1858862902}
   _optionsMenu: {fileID: 8797042894752096264}
   _pausePanel: {fileID: 919706246}
+  _thrustersSlider: {fileID: 822232730}
   _SFXIcon: {fileID: 1271476176}
   _redSFXIcon: {fileID: 780776560}
   _BGMIcon: {fileID: 1779290562}

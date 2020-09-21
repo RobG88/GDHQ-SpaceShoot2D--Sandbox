@@ -77,6 +77,22 @@ public class Player : MonoBehaviour
     [SerializeField] AudioClip _explosionSFX;
     [SerializeField] GameObject PlayerFinalExplosionPE;
 
+    ///
+    /// THRUSTER VARIABLES
+    ///
+    [SerializeField] GameObject _mainThrusters;
+    [SerializeField] private float _maxThrusters, _currentThrusters;
+    private float _thrusterBurnRate = 2.5f;
+    [SerializeField] private bool _enableMainThrusters;
+    [SerializeField] private bool _regeneratingThrusters;
+    private float _thrustersInitialRegenDelay = 2.0f; // wait 2.0f seconds before THRUSTERS begin to regenerate
+    private float _thrustersRegenTick = 0.1f;
+    private WaitForSeconds _thrustersRegenDelay;
+    private WaitForSeconds _thrustersRegenTickDelay;
+    ///
+    /// THRUSTER VARIABLES - END
+    ///
+
     Animator _anim; // Player Death Explosion with Event to clean-up
 
     void Start()
@@ -100,6 +116,19 @@ public class Player : MonoBehaviour
         //
 
         _speed = _spaceshipSpeed; // initialize Ship/Player speed
+
+        ///
+        /// THRUSTERS VARIABLES INITIALIZE
+        ///
+        _maxThrusters = 10.0f;
+        _currentThrusters = 10.0f; // TODO: disable for beginning of game
+        _thrustersRegenDelay = new WaitForSeconds(_thrustersInitialRegenDelay);
+        _thrustersRegenTickDelay = new WaitForSeconds(_thrustersRegenTick);
+        UIManager.Instance.SetMaxThrusters(_maxThrusters);
+        UIManager.Instance.SetThrusters(_currentThrusters);
+        ///
+        /// THRUSTERS VARIABLES INIT - END
+        ///
 
         UIManager.Instance.UpdatePlayerLives(_playerLives);
         _originalThrustersLocalScale = _thruster_left.transform.localScale;
@@ -134,6 +163,23 @@ public class Player : MonoBehaviour
             {
                 FireLaser();
             }
+
+            /// THRUSTERS
+            /// Regenerate, Burn & Disable
+            if (RegenThrusters() && !_enableMainThrusters)
+            {
+                StartCoroutine(RegeneratorThrusters());
+            }
+            if (Input.GetKey(KeyCode.LeftShift) && Thrusters())
+            {
+                EnableMainThrusters();
+            }
+            else if (Input.GetKeyUp(KeyCode.LeftShift))
+            {
+                DisableMainThrusters();
+            }
+            /// THRUSTERS - END
+            ///
 
             // Below is for testing purposes only
             // CHEAT KEYS
@@ -279,6 +325,14 @@ public class Player : MonoBehaviour
         _sound.clip = _explosionSFX;
         _sound.PlayOneShot(_sound.clip);
 
+        ///
+        /// THRUSTERS - DISABLE PLAYER DEATH
+        /// 
+        _mainThrusters.SetActive(false);
+        ///
+        /// THRUSTERS - DISABLE PLAYER DEATH - END
+        ///
+
         _thruster_left.SetActive(false);
         _thruster_right.SetActive(false);
         _shipDamageLeft.SetActive(false);
@@ -403,6 +457,18 @@ public class Player : MonoBehaviour
         {
             _newSpeed = _spaceshipSpeed * 1.75f;
         }
+
+        ///
+        /// THRUSTERS - SPEED CALC
+        /// 
+        if (_enableMainThrusters) // Thrusters = speed * 250%
+        {
+            _newSpeed = _spaceshipSpeed * 2.50f;
+        }
+        ///
+        /// THRUSTERS - SPEED CALC - END
+        /// 
+
         return _newSpeed;
     }
 
@@ -411,4 +477,61 @@ public class Player : MonoBehaviour
         _score += scoreAmount;
         UIManager.Instance.UpdateScore(_score);
     }
+
+    ///
+    /// MAIN THRUSTERS ROUTINES
+    ///
+    private bool Thrusters() // True, if ship has Main Thruster power
+    {
+        return (_currentThrusters > 0);
+    }
+    private bool RegenThrusters() // True, if ship's Main Thurster power < Max Thrusters
+    {
+        return (_currentThrusters < _maxThrusters);
+    }
+    private void EnableMainThrusters()
+    {
+        _regeneratingThrusters = false;
+        _enableMainThrusters = true;
+        _mainThrusters.SetActive(_enableMainThrusters);
+
+        if (_currentThrusters > 0)
+        {
+            _currentThrusters -= _thrusterBurnRate * Time.deltaTime;
+
+            if (_currentThrusters <= 0)
+            {
+                _currentThrusters = 0;
+                _enableMainThrusters = false;
+                _mainThrusters.SetActive(_enableMainThrusters);
+                _speed = CalculateShipSpeed();
+            }
+
+            UIManager.Instance.SetThrusters(_currentThrusters);
+        }
+    }
+
+    private void DisableMainThrusters()
+    {
+        _enableMainThrusters = false;
+        _mainThrusters.SetActive(_enableMainThrusters);
+    }
+    private IEnumerator RegeneratorThrusters()
+    {
+        _regeneratingThrusters = true;
+
+        yield return _thrustersRegenDelay; // cahced WaitForSeconds(_thrustersInitialRegenDelay)
+
+        while (_currentThrusters < _maxThrusters && _regeneratingThrusters)
+        {
+            _currentThrusters += _maxThrusters / 100000;
+            UIManager.Instance.SetThrusters(_currentThrusters);
+            yield return _thrustersRegenTickDelay;
+        }
+
+        _regeneratingThrusters = false;
+    }
+    ///
+    /// MAIN THRUSTERS ROUTINES - END
+    ///
 }

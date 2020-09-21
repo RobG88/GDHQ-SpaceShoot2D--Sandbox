@@ -19,6 +19,14 @@ public class UIManager : MonoSingleton<UIManager>
     [SerializeField] GameObject _optionsMenu;
     [SerializeField] GameObject _pausePanel;
 
+    ///
+    /// MAIN THRUSTERS Variable
+    ///
+    [SerializeField] Slider _thrustersSlider;
+    ///
+    /// MAIN THRUSTERS Variable - END
+    ///
+
     [SerializeField] GameObject _SFXIcon;
     [SerializeField] GameObject _redSFXIcon;
     [SerializeField] GameObject _BGMIcon;
@@ -121,6 +129,22 @@ public class UIManager : MonoSingleton<UIManager>
     {
         SceneManager.LoadScene("MainMenu"); // Scene 0 = 'MainMenu'
     }
+
+    ///
+    /// MAIN THRUSTERS UI Functions
+    ///
+    public void SetMaxThrusters(float thrusters)
+    {
+        _thrustersSlider.maxValue = thrusters;
+        _thrustersSlider.value = thrusters;
+    }
+    public void SetThrusters(float thrusters)
+    {
+        _thrustersSlider.value = thrusters;
+    }
+    ///
+    /// MAIN THRUSTERS UI Functions - END
+    ///
 
     public void OptionsMenu()
     {
