@@ -78,6 +78,15 @@ public class Player : MonoBehaviour
     [SerializeField] GameObject PlayerFinalExplosionPE;
 
     ///
+    /// AMMO VARIABLES
+    ///
+    private int _maxAmmo, _currentAmmo;
+    [SerializeField] AudioClip _out_of_ammo_sfx;
+    ///
+    /// AMMO VARIABLES - END
+    ///
+
+    ///
     /// THRUSTER VARIABLES
     ///
     [SerializeField] GameObject _mainThrusters;
@@ -130,6 +139,18 @@ public class Player : MonoBehaviour
         _speed = _spaceshipSpeed; // initialize Ship/Player speed
 
         ///
+        /// AMMO VARIABLES INITIALIZE
+        ///
+        // Laser Cannon Ammo
+        _currentAmmo = 5;
+        _maxAmmo = 15;
+        UIManager.Instance.SetMaxAmmo(_maxAmmo);
+        UIManager.Instance.SetAmmo(_currentAmmo);
+        ///
+        /// AMMO VARIABLES INITIALIZE - END
+        ///
+
+        ///
         /// THRUSTERS VARIABLES INITIALIZE
         ///
         _maxThrusters = 10.0f;
@@ -179,10 +200,21 @@ public class Player : MonoBehaviour
         if (!_gameOver)
         {
             /// LASER CANNONS
-            if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire)
+            if (Input.GetKeyDown(KeyCode.Space) && Time.time > _nextFire && Ammo())
             {
                 FireLaser();
             }
+            ///
+            /// AMMO - Out of Ammo SFX
+            /// 
+            else if (Input.GetKeyDown(KeyCode.Space) && !Ammo())
+            {
+                _sound.clip = _out_of_ammo_sfx;
+                _sound.PlayOneShot(_sound.clip);
+            }
+            ///
+            /// AMMO - Out of Ammo SFX - END
+            /// 
 
             /// THRUSTERS
             /// Regenerate, Burn & Disable
@@ -205,7 +237,6 @@ public class Player : MonoBehaviour
             // CHEAT KEYS
             if (Input.GetKeyDown(KeyCode.Q)) { _wrapShip = !_wrapShip; }
             if (Input.GetKeyDown(KeyCode.T)) { _tripleShotActive = !_tripleShotActive; }
-
         }
     }
 
@@ -218,6 +249,15 @@ public class Player : MonoBehaviour
     private void FireLaser() // Fire Laser Cannons & TripleShot
     {
         _nextFire = Time.time + _fireRate; // delay (in Seconds) how quickly the laser will fire
+
+        ///
+        /// AMMO TRACKING & UI UPDATE
+        ///
+        _currentAmmo--;
+        UIManager.Instance.SetAmmo(_currentAmmo);
+        ///
+        /// AMMO TRACKING & UI UPDATE - END
+        ///
 
         if (!_tripleShotActive) // Tripleshoot PowerUp
         {
@@ -488,6 +528,7 @@ public class Player : MonoBehaviour
         {
             case "TripleShot":
                 _tripleShotActive = true;
+                LaserCannonsRefill(15);
                 //_timesUpText.text = _powerUpType;
                 // Enable PowerUpCountDownBar
                 _powerUpCountDownBar.SetActive(true);
@@ -510,9 +551,33 @@ public class Player : MonoBehaviour
                 break;
             /// 
             /// SHIELD POWERUP - END
+            ///
+
+            ///
+            /// AMMO - LASER CANNON PowerUp
+            /// 
+            case "EnergyCell":
+                LaserCannonsRefill(5);
+                break;
+            ///
+            /// AMMO - LASER CANNON PowerUp
             /// 
         }
     }
+
+    ///
+    /// AMMO FILL FUNCTION
+    ///
+    private void LaserCannonsRefill(int ammo)
+    {
+        _currentAmmo = _currentAmmo + ammo;
+        if (_currentAmmo > 15)
+            _currentAmmo = 15;
+        UIManager.Instance.SetAmmo(_currentAmmo);
+    }
+    ///
+    /// AMMO FILL FUNCTION - END
+    ///
 
     IEnumerator PowerUpCoolDownRoutine(float coolDown) // PowerUp Cooldown
     {
@@ -559,6 +624,17 @@ public class Player : MonoBehaviour
         _score += scoreAmount;
         UIManager.Instance.UpdateScore(_score);
     }
+
+    ///
+    /// AMMO BOOL FUNCTION
+    ///
+    private bool Ammo() // True, if ship has Laser Cannon Energy
+    {
+        return (_currentAmmo > 0);
+    }
+    ///
+    /// AMMO BOOL FUNCTION
+    ///
 
     ///
     /// MAIN THRUSTERS ROUTINES
