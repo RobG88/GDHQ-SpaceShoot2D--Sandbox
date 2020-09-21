@@ -93,6 +93,18 @@ public class Player : MonoBehaviour
     /// THRUSTER VARIABLES - END
     ///
 
+    /// 
+    /// SHIELD VARIABLES
+    /// 
+    [SerializeField] bool _shieldActive = false;
+    [SerializeField] GameObject _shield;
+    [SerializeField] int _shieldPower;
+    [SerializeField] int _shieldBonus;
+    Vector3 _shieldOriginalSize;
+    /// 
+    /// SHIELD VARIABLES - END
+    /// 
+
     Animator _anim; // Player Death Explosion with Event to clean-up
 
     void Start()
@@ -128,6 +140,14 @@ public class Player : MonoBehaviour
         UIManager.Instance.SetThrusters(_currentThrusters);
         ///
         /// THRUSTERS VARIABLES INIT - END
+        ///
+
+        ///
+        /// SHIELDS VARIABLES INITIALIZE
+        ///
+        _shieldOriginalSize = _shield.transform.localScale;
+        ///
+        /// SHIELDS VARIABLES INITIALIZE - END
         ///
 
         UIManager.Instance.UpdatePlayerLives(_playerLives);
@@ -294,33 +314,83 @@ public class Player : MonoBehaviour
         Destroy(this.gameObject);
     }
 
+    ///
+    /// SHIELDS - SHIP DAMAGE ROUTINE
+    /// 
     public void Damage() // Ship & Shield damage
     {
-
-        if (_bonusLife)
+        if (_shieldBonus == 3 && !_bonusLifeOncePerLevel) // Enable 3x Shield Bonus 'hit'
         {
-            _bonusLife = false;
+            _bonusLife = true;
+            _shieldBonus = 0;
+            _bonusLifeOncePerLevel = true;
+        }
+
+        if (_shieldActive)
+        {
+            _sound.clip = _explosionSFX;
+            _sound.PlayOneShot(_sound.clip);
+            if (_shieldPower > 0)
+            {
+                _shieldPower--;
+                _shield.transform.localScale -= new Vector3(0.5f, 0.5f, 0.5f);
+            }
+            if (_shieldPower == 0)
+            {
+                _shieldActive = false;
+                _shieldPower = 3; // reset Shield 'hits' remain value
+                _shield.transform.localScale = _shieldOriginalSize;
+                _shield.SetActive(false);
+            }
         }
         else
         {
-            _playerLives--;
-            UIManager.Instance.UpdatePlayerLives(_playerLives);
-            _bonusLifeOncePerLevel = true;
-
-            if (_playerLives < 1)
+            if (_bonusLife)
             {
-                _gameOver = true;
-
-                PlayerDeathSequence();
-                return;
+                UIManager.Instance.UpdateShieldBonusUI(_shieldBonus);
+                _bonusLife = false;
             }
+            else
+            {
+                _playerLives--;
+                UIManager.Instance.UpdatePlayerLives(_playerLives);
+                _bonusLifeOncePerLevel = true;
+                _shieldBonus = 0;
+                UIManager.Instance.UpdateShieldBonusUI(_shieldBonus);
 
-            SpaceshipDamaged();
+                if (_playerLives < 1)
+                {
+                    _gameOver = true;
+                    PlayerDeathSequence();
+                    return;
+                }
+
+                SpaceshipDamaged();
+            }
         }
     }
 
+
+    ///
+    /// SHIELDS - SHIP DAMAGE ROUTINE - END
+    /// 
+
     public void PlayerDeathSequence() // player death final sequence
     {
+        ///
+        /// SHIELDS - DISABLE PLAYER DEATH
+        /// 
+        if (_shieldActive)
+        {
+            _shieldPower = 0;
+            _shieldActive = false;
+            _shield.transform.localScale = _shieldOriginalSize;
+            _shield.SetActive(false);
+        }
+        ///
+        /// SHIELDS - DISABLE PLAYER DEATH - END
+        /// 
+
         gameObject.GetComponent<BoxCollider2D>().enabled = false;
         _sound.clip = _explosionSFX;
         _sound.PlayOneShot(_sound.clip);
@@ -429,6 +499,18 @@ public class Player : MonoBehaviour
                 _powerUpCountDownBar.SetActive(true);
                 StartCoroutine(PowerUpCoolDownRoutine(_speedCoolDown));
                 break;
+            /// 
+            /// SHIELD POWERUP
+            /// 
+            case "Shield":
+                _shieldPower = 3; // # of hits before shield is destroyed
+                _shield.transform.localScale = _shieldOriginalSize; // reset shield graphic to initial size
+                _shieldActive = true;
+                _shield.SetActive(true); // enable the Shield gameObject
+                break;
+            /// 
+            /// SHIELD POWERUP - END
+            /// 
         }
     }
 
