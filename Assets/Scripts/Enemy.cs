@@ -103,6 +103,13 @@ public class Enemy : MonoBehaviour
                 _boxCollider2D.enabled = false;
                 //_audioSource.Play();
                 _sound.PlayOneShot(_sound.clip);
+                ///
+                /// CAMERA SHAKE
+                /// 
+                CinemachineShake.Instance.ShakeCamera(5f, 1f);
+                ///
+                /// CAMERA SHAKE
+                /// 
                 // trigger explosion
                 _anim.SetTrigger("OnEnemyDeath");
                 // destory self (enemy)
@@ -118,6 +125,13 @@ public class Enemy : MonoBehaviour
                 _boxCollider2D.enabled = false;
                 //_audioSource.Play();
                 _sound.PlayOneShot(_sound.clip);
+                ///
+                /// CAMERA SHAKE
+                /// 
+                CinemachineShake.Instance.ShakeCamera(5f, 1f);
+                ///
+                /// CAMERA SHAKE
+                /// 
                 // Trigger explosion
                 _anim.SetTrigger("OnEnemyDeath");
                 // destory self (enemy)
