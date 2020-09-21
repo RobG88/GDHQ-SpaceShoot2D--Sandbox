@@ -22,6 +22,14 @@ public class Enemy : MonoBehaviour
     BoxCollider2D _boxCollider2D;
     AudioSource _sound;
 
+    ///
+    /// FREEZE/EMP TORPEDO Secondary Fire Variable
+    ///
+    bool isFrozen = false;
+    ///
+    /// FREEZE/EMP TORPEDO Secondary Fire Variable - END
+    ///
+
     void Start()
     {
         _anim = GetComponent<Animator>();
@@ -50,8 +58,10 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-
-        if (Time.time > _canFire && transform.position.y < 6.5f)
+        ///
+        /// FREEZE/EMP TORPEDO - If enemy is frozen, can shoot, _CanFire is reset upon Thaw
+        /// 
+        if (Time.time > _canFire && transform.position.y < 6.5f && !isFrozen)
         {
             _fireRate = Random.Range(3f, 7f);
             _canFire = Time.time + _fireRate;
@@ -147,4 +157,26 @@ public class Enemy : MonoBehaviour
     {
         Destroy(gameObject);
     }
+
+    ///
+    /// FREEZE/EMP TORPEDO Secondary Fire Functions
+    ///
+    public void FreezeEnemyShip(float speed)
+    {
+        _tempSpeed = _enemySpeed;
+        _enemySpeed = speed;
+        isFrozen = true;
+    }
+
+    public void ThawedEnemyShip()
+    {
+        _enemySpeed = _tempSpeed;
+        isFrozen = false;
+        _canFire = Time.time + _fireRate; // reset CanFire time after thaw
+    }
+
+    public bool Frozen() { return isFrozen; }
+    ///
+    /// FREEZE/EMP TORPEDO Secondary Fire Functions - END
+    ///
 }

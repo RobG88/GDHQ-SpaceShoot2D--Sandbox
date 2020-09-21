@@ -98,6 +98,7 @@ GameObject:
   - component: {fileID: 8823196867265293349}
   - component: {fileID: 3767175991305985264}
   - component: {fileID: 72186096}
+  - component: {fileID: 1473855880}
   - component: {fileID: 1473855881}
   m_Layer: 0
   m_Name: Enemy
@@ -368,6 +369,21 @@ MonoBehaviour:
   deCloaking: 0
   cloaked: 0
   fade: 1
+--- !u!114 &1473855880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5674607962677283662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a878febac468d5d489710cd9ee0b3337, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _originalMat: {fileID: 2100000, guid: 3fce3a59bdccf424c8bc239297e31623, type: 2}
+  _frozenMat: {fileID: 2100000, guid: 1f1b922898820b043bdde591d3037071, type: 2}
+  _cloakingMat: {fileID: 0}
 --- !u!114 &1473855881
 MonoBehaviour:
   m_ObjectHideFlags: 0
